@@ -1,4 +1,4 @@
-<img src="assets/parsimony-title.svg" alt="Parsimony" width="880">
+<img src="https://raw.githubusercontent.com/MinaSaad1/parsimony/main/assets/parsimony-title.svg" alt="Parsimony" width="880">
 
 **Token usage and cost observability for Claude Code**
 
@@ -19,7 +19,7 @@ You use Claude Code daily but have no idea which sessions cost the most, which t
 
 <div align="center">
   <picture>
-    <img alt="Parsimony output example" src="assets/demo.svg" width="680">
+    <img alt="Parsimony output example" src="https://raw.githubusercontent.com/MinaSaad1/parsimony/main/assets/demo.svg" width="680">
   </picture>
 </div>
 

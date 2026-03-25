@@ -92,6 +92,12 @@ parsimony live --project myapp    # filter by project
 
 The dashboard shows: cost summary with trend arrow, per-model cost bars, top tools by call count, cache hit rate gauge, and a scrollable session log.
 
+<div align="center">
+  <picture>
+    <img alt="Parsimony live dashboard" src="https://raw.githubusercontent.com/MinaSaad1/parsimony/main/assets/dashboard-demo.svg" width="760">
+  </picture>
+</div>
+
 ### Budget Alerts
 
 Set daily, weekly, or monthly cost budgets. Warnings appear automatically in matching reports when you approach or exceed limits.

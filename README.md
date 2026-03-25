@@ -15,202 +15,63 @@
 
 ---
 
-## The Problem
-
-You use Claude Code daily. The Anthropic dashboard shows a total bill, but you have no idea:
-
-- Which sessions cost the most?
-- Which tools burn through tokens?
-- Is prompt caching actually helping?
-- How does Opus vs Sonnet usage compare?
-- What did that one heavy session actually cost?
-
-**Parsimony answers all of these.** No API keys needed. It reads the JSONL files Claude Code already saves on your machine.
+You use Claude Code daily but have no idea which sessions cost the most, which tools burn tokens, or whether caching is helping. **Parsimony answers all of these.** No API keys needed. It reads the JSONL files Claude Code already saves on your machine.
 
 ---
 
-## Installation
+## Example Output
+
+<div align="center">
+  <picture>
+    <img alt="Parsimony output example" src="assets/example-output.svg" width="680">
+  </picture>
+</div>
+
+---
+
+## Install
 
 ```bash
 pip install parsimony-cli
 ```
 
-That's it. Requires **Python 3.11+** and **Claude Code** session data at `~/.claude/projects/`.
-
-Other install methods:
+<details>
+<summary>Other methods</summary>
 
 ```bash
-pipx install parsimony-cli    # isolated install
+pipx install parsimony-cli     # isolated install
 uv tool install parsimony-cli  # with uv
+python -m parsimony            # if not in PATH
 ```
 
-Verify it works:
-
-```bash
-parsimony --help
-```
-
-> If `parsimony` is not in your PATH, use `python -m parsimony` instead.
+</details>
 
 ---
 
-## Quick Start
+## Usage
 
 ```bash
-parsimony              # today's summary (default)
-parsimony yesterday    # yesterday's report
-parsimony week         # this week
-parsimony week --last  # last week
-parsimony month        # this month
+parsimony                # today's summary (default)
+parsimony yesterday      # yesterday's report
+parsimony week           # this week
+parsimony week --last    # last week
+parsimony month          # this month
 parsimony month 2026-03  # specific month
 ```
-
----
-
-## Architecture
-
-```
-                     ~/.claude/projects/
-                            |
-                    +-------+-------+
-                    |               |
-              project-a/       project-b/
-              session1.jsonl   session3.jsonl
-              session2.jsonl
-                    |
-                    v
-    +=======================================+
-    |           P A R S I M O N Y           |
-    +=======================================+
-    |                                       |
-    |   +----------+     +-------------+    |
-    |   |  Scanner |---->|   Reader    |    |
-    |   | discover |     | stream JSONL|    |
-    |   +----------+     +------+------+    |
-    |                           |           |
-    |                           v           |
-    |                  +-----------------+  |
-    |                  |Session Builder  |  |
-    |                  | dedup requests  |  |
-    |                  | detect models   |  |
-    |                  | extract tools   |  |
-    |                  +--------+--------+  |
-    |                           |           |
-    |            +--------------+---------+ |
-    |            |              |         | |
-    |            v              v         v |
-    |      +---------+   +--------+ +------+
-    |      |  Cost   |   | Group  | |Rollup|
-    |      | Engine  |   |  By    | |      |
-    |      | Decimal |   |model   | |      |
-    |      |precision|   |tool    | |      |
-    |      +---------+   |project | |      |
-    |            |        |day    | |      |
-    |            |        +--------+ +------+
-    |            |              |         | |
-    |            +--------------+---------+ |
-    |                           |           |
-    |                           v           |
-    |   +----------+   +---------------+    |
-    |   |  Cache   |   |    Output     |    |
-    |   | SQLite   |   | tables/charts |    |
-    |   +----------+   | JSON/CSV      |    |
-    |                  +---------------+    |
-    +=======================================+
-                        |
-                        v
-              Terminal / Export File
-```
-
-### Data Flow
-
-```
-  JSONL Events          Parsed Session           Rollup
-  +-----------+        +---------------+       +----------+
-  |user       |  parse |session_id     | cost  |total_cost|
-  |assistant  |------->|segments[]     |------>|per_model |
-  |tool_use   |  dedup |  model        | calc  |per_tool  |
-  |tool_result|  merge |  calls[]      |       |per_mcp   |
-  +-----------+        |    usage      |       |cache_eff |
-                       |    tools[]    |       |top_sess  |
-                       |subagents[]   |       +----------+
-                       +---------------+
-```
-
-### Module Map
-
-```
-src/parsimony/
-  |
-  +-- parser/
-  |     events.py           # Frozen dataclasses for JSONL event types
-  |     scanner.py          # Filesystem discovery of session files
-  |     reader.py           # Streaming JSONL line-by-line reader
-  |     session_builder.py  # RequestId dedup, model segment detection
-  |
-  +-- models/
-  |     session.py          # Domain model with computed properties
-  |     cost.py             # Decimal-precision cost calculation engine
-  |     tool_usage.py       # MCP tool name parsing (mcp__server__tool)
-  |
-  +-- aggregator/
-  |     time_range.py       # Today/week/month/custom time windows
-  |     grouper.py          # Group by model, tool, project, day
-  |     rollup.py           # Full metric aggregation
-  |
-  +-- output/
-  |     formatters.py       # Human-friendly numbers ($1.23, 1.2M, 5m 30s)
-  |     tables.py           # Rich tables for every report type
-  |     charts.py           # Bar charts, cache gauge
-  |     export.py           # JSON and CSV export
-  |
-  +-- cache/
-  |     store.py            # SQLite cache (avoid re-parsing unchanged files)
-  |
-  +-- cli.py                # Click command group (entry point)
-  +-- config.py             # Pricing loader and path helpers
-```
-
----
-
-## Commands
-
-### Reports
-
-```bash
-parsimony today              # today's full report
-parsimony yesterday          # yesterday's report
-parsimony week               # current week
-parsimony week --last        # previous week
-parsimony month              # current month
-parsimony month 2026-03      # specific month
-```
-
-Each report shows: total cost, session count, per-model breakdown with cost share, tool usage, MCP servers, daily cost trend, cache efficiency, and a session list sorted by cost.
 
 ### Session Drill-Down
 
 ```bash
-parsimony session a1b2c3d4                              # prefix match
-parsimony session a1b2c3d4-5678-9abc-def0-1234567890ab  # full UUID
+parsimony session a1b2c3d4   # prefix match or full UUID
 ```
-
-Shows for one session:
-- Total cost and duration
-- Model segments (Sonnet/Opus/Haiku switches)
-- Per-segment token counts (input, output, cache write, cache read)
-- Tool breakdown with call counts
-- Subagent details
-- Cache efficiency
 
 ### Rankings
 
 ```bash
-parsimony top sessions --period week     # most expensive sessions
-parsimony top models   --period month    # cost by model
-parsimony top tools    --period all      # most used tools
-parsimony top projects --period week     # cost by project
-parsimony top sessions -n 20            # show top 20
+parsimony top sessions --period week    # most expensive sessions
+parsimony top models   --period month   # cost by model
+parsimony top tools    --period all     # most used tools
+parsimony top projects --period week    # cost by project
 ```
 
 ### Compare Periods
@@ -218,75 +79,157 @@ parsimony top sessions -n 20            # show top 20
 ```bash
 parsimony compare --period week  --last 4   # last 4 weeks side-by-side
 parsimony compare --period month --last 3   # last 3 months
-parsimony compare --period day   --last 7   # last 7 days
 ```
 
-### Filters and Export
+### Export
 
 ```bash
-parsimony -p myproject week                          # filter by project
-parsimony --export json month 2026-03 > report.json  # JSON export
-parsimony --export csv week > models.csv             # CSV export
-parsimony --no-cache today                           # skip cache
-parsimony -v today                                   # verbose logging
+parsimony --export json month > report.json
+parsimony --export csv week > models.csv
 ```
-
----
-
-## Pricing
-
-Parsimony ships with built-in Claude pricing. Override it at `~/.parsimony/pricing.yaml`:
-
-```yaml
-models:
-  claude-opus-4-6:
-    input_per_million: 15.00
-    output_per_million: 75.00
-    cache_write_per_million: 18.75
-    cache_read_per_million: 1.50
-  claude-sonnet-4-6:
-    input_per_million: 3.00
-    output_per_million: 15.00
-    cache_write_per_million: 3.75
-    cache_read_per_million: 0.30
-  claude-haiku-4-5-20251001:
-    input_per_million: 0.80
-    output_per_million: 4.00
-    cache_write_per_million: 1.00
-    cache_read_per_million: 0.08
-```
-
-Unknown models fall back to Sonnet pricing.
 
 ---
 
 ## How It Works
 
+```mermaid
+graph LR
+    A["~/.claude/projects/*.jsonl"] --> B["Scanner"]
+    B --> C["Reader"]
+    C --> D["Session Builder"]
+    D --> E["Cost Engine"]
+    D --> F["Grouper"]
+    E --> G["Rollup"]
+    F --> G
+    G --> H["Rich Tables & Charts"]
+    G --> I["JSON / CSV Export"]
+    H --> J["Terminal"]
+    I --> K["File"]
+
+    style A fill:#1e3a5f,stroke:#22d3ee,color:#22d3ee
+    style B fill:#1a1a2e,stroke:#8b949e,color:#e6edf3
+    style C fill:#1a1a2e,stroke:#8b949e,color:#e6edf3
+    style D fill:#1a1a2e,stroke:#8b949e,color:#e6edf3
+    style E fill:#1a1a2e,stroke:#e879f9,color:#e879f9
+    style F fill:#1a1a2e,stroke:#e879f9,color:#e879f9
+    style G fill:#1a1a2e,stroke:#4ade80,color:#4ade80
+    style H fill:#1a1a2e,stroke:#22d3ee,color:#22d3ee
+    style I fill:#1a1a2e,stroke:#22d3ee,color:#22d3ee
+    style J fill:#1e3a5f,stroke:#22d3ee,color:#22d3ee
+    style K fill:#1e3a5f,stroke:#22d3ee,color:#22d3ee
 ```
-  ~/.claude/projects/e--My-Project/abc123.jsonl
-                         |
-                  Each line = one event
-                         |
-     +-------------------+-------------------+
-     |                   |                   |
-  {"type":"user"    {"type":"assistant"  {"type":"assistant"
-   "cwd":"/app"     "model":"sonnet"     "model":"opus"
-   "version":"1.0"  "requestId":"r1"     "requestId":"r2"
-   ...}             "usage":{...}        "usage":{...}
-                    "content":[          ...}
-                      {"type":"tool_use"
-                       "name":"Read"}
-                    ]}
-                         |
-                         v
-              +---------------------+
-              | 1. Stream & Parse   |  line-by-line, never loads full file
-              | 2. Dedup by reqId   |  last chunk has cumulative usage
-              | 3. Detect segments  |  sonnet -> opus = new segment
-              | 4. Calculate costs  |  Decimal precision, per-model rates
-              | 5. Aggregate        |  by time/model/tool/project
-              | 6. Render           |  Rich tables, charts, gauges
-              +---------------------+
+
+### Data Pipeline
+
+```mermaid
+graph TD
+    subgraph Parse
+        A["JSONL line-by-line"] --> B["Dedup by requestId"]
+        B --> C["Detect model switches"]
+        C --> D["Extract tool usage"]
+    end
+
+    subgraph Calculate
+        D --> E["Decimal-precision costs"]
+        E --> F["Group by model / tool / project / day"]
+        F --> G["Cache efficiency metrics"]
+    end
+
+    subgraph Output
+        G --> H["Rich tables"]
+        G --> I["Bar charts & gauges"]
+        G --> J["JSON / CSV"]
+    end
+
+    style A fill:#0d1117,stroke:#22d3ee,color:#22d3ee
+    style B fill:#0d1117,stroke:#22d3ee,color:#22d3ee
+    style C fill:#0d1117,stroke:#22d3ee,color:#22d3ee
+    style D fill:#0d1117,stroke:#22d3ee,color:#22d3ee
+    style E fill:#0d1117,stroke:#e879f9,color:#e879f9
+    style F fill:#0d1117,stroke:#e879f9,color:#e879f9
+    style G fill:#0d1117,stroke:#e879f9,color:#e879f9
+    style H fill:#0d1117,stroke:#4ade80,color:#4ade80
+    style I fill:#0d1117,stroke:#4ade80,color:#4ade80
+    style J fill:#0d1117,stroke:#4ade80,color:#4ade80
+```
+
+### What Each Report Shows
+
+| Section | Details |
+|---------|---------|
+| **Summary** | Total cost, session count, API calls |
+| **By Model** | Per-model tokens, cost, share % |
+| **By Tool** | Tool call counts, MCP vs built-in |
+| **Cache** | Hit rate gauge, read/write breakdown |
+| **Sessions** | Time, duration, project, model, cost |
+
+---
+
+## Pricing
+
+Built-in pricing for all Claude models. Override at `~/.parsimony/pricing.yaml`:
+
+<details>
+<summary>Default pricing table</summary>
+
+| Model | Input | Output | Cache Write | Cache Read |
+|-------|------:|-------:|------------:|-----------:|
+| Opus 4.6 | $15.00/M | $75.00/M | $18.75/M | $1.50/M |
+| Sonnet 4.6 | $3.00/M | $15.00/M | $3.75/M | $0.30/M |
+| Haiku 4.5 | $0.80/M | $4.00/M | $1.00/M | $0.08/M |
+
+Unknown models fall back to Sonnet pricing.
+
+</details>
+
+---
+
+## Project Structure
+
+```mermaid
+graph TD
+    CLI["cli.py - Click entry point"] --> Parser
+    CLI --> Models
+    CLI --> Aggregator
+    CLI --> Output
+    CLI --> Cache
+
+    subgraph Parser
+        P1["scanner.py - discover files"]
+        P2["reader.py - stream JSONL"]
+        P3["session_builder.py - dedup & segments"]
+        P4["events.py - frozen dataclasses"]
+    end
+
+    subgraph Models
+        M1["session.py - domain model"]
+        M2["cost.py - Decimal engine"]
+        M3["tool_usage.py - MCP parsing"]
+    end
+
+    subgraph Aggregator
+        A1["time_range.py - time windows"]
+        A2["grouper.py - group by dimension"]
+        A3["rollup.py - full aggregation"]
+    end
+
+    subgraph Output
+        O1["tables.py - Rich tables"]
+        O2["charts.py - bar charts & gauge"]
+        O3["formatters.py - $1.23, 1.2M"]
+        O4["export.py - JSON & CSV"]
+    end
+
+    subgraph Cache
+        C1["store.py - SQLite cache"]
+    end
+
+    style CLI fill:#1e3a5f,stroke:#22d3ee,color:#22d3ee
+    style Parser fill:#0d1117,stroke:#8b949e,color:#e6edf3
+    style Models fill:#0d1117,stroke:#e879f9,color:#e6edf3
+    style Aggregator fill:#0d1117,stroke:#4ade80,color:#e6edf3
+    style Output fill:#0d1117,stroke:#facc15,color:#e6edf3
+    style Cache fill:#0d1117,stroke:#60a5fa,color:#e6edf3
 ```
 
 ---
@@ -297,13 +240,9 @@ Unknown models fall back to Sonnet pricing.
 git clone https://github.com/MinaSaad1/parsimony.git
 cd parsimony
 pip install -e ".[dev]"
-
-# Run tests (170 tests, 91%+ coverage)
-pytest
-
-# Lint and type check
-ruff check src/
-mypy src/
+pytest                # 170 tests, 91%+ coverage
+ruff check src/       # lint
+mypy src/             # type check
 ```
 
 ---
@@ -311,23 +250,3 @@ mypy src/
 ## License
 
 MIT License. See [LICENSE](LICENSE) for details.
-
-Copyright (c) 2026 Parsimony Contributors
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.

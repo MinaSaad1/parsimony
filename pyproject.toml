@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "parsimony"
+name = "parsimony-cli"
 version = "0.1.0"
 description = "Token usage and cost observability for Claude Code sessions"
 readme = "README.md"

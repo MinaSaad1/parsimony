@@ -53,13 +53,13 @@ pip install -e .
 ### Option 2: Install from PyPI (coming soon)
 
 ```bash
-pip install parsimony
+pip install parsimony-cli
 
 # Or with pipx (isolated install, recommended for CLI tools)
-pipx install parsimony
+pipx install parsimony-cli
 
 # Or with uv
-uv tool install parsimony
+uv tool install parsimony-cli
 ```
 
 ### Verify installation

@@ -23,4 +23,4 @@ venv/
 *.swo
 .DS_Store
 Thumbs.db
-assets/gen_banner.py
+assets/gen_*.py

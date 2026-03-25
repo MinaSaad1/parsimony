@@ -181,9 +181,9 @@ Built-in pricing for all Claude models. Override at `~/.parsimony/pricing.yaml`:
 
 | Model | Input | Output | Cache Write | Cache Read |
 |-------|------:|-------:|------------:|-----------:|
-| Opus 4.6 | $15.00/M | $75.00/M | $18.75/M | $1.50/M |
+| Opus 4.6 | $5.00/M | $25.00/M | $6.25/M | $0.50/M |
 | Sonnet 4.6 | $3.00/M | $15.00/M | $3.75/M | $0.30/M |
-| Haiku 4.5 | $0.80/M | $4.00/M | $1.00/M | $0.08/M |
+| Haiku 4.5 | $1.00/M | $5.00/M | $1.25/M | $0.10/M |
 
 Unknown models fall back to Sonnet pricing.
 

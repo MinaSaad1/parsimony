@@ -9,6 +9,7 @@ description = "Token usage and cost observability for Claude Code sessions"
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.11"
+authors = [{name = "Mina Saad"}]
 keywords = ["claude", "claude-code", "tokens", "cost", "observability", "cli"]
 classifiers = [
     "Development Status :: 3 - Alpha",
@@ -26,6 +27,12 @@ dependencies = [
     "rich>=13.0",
     "pyyaml>=6.0",
 ]
+
+[project.urls]
+Homepage = "https://pypi.org/project/parsimony-cli/"
+Repository = "https://github.com/MinaSaad1/parsimony"
+Issues = "https://github.com/MinaSaad1/parsimony/issues"
+Changelog = "https://github.com/MinaSaad1/parsimony/releases"
 
 [project.scripts]
 parsimony = "parsimony.cli:main"

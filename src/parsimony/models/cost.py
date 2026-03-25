@@ -69,10 +69,10 @@ class SessionCost:
 
 DEFAULT_PRICING: dict[str, ModelPricing] = {
     "claude-opus-4-6": ModelPricing(
-        input_per_million=Decimal("15.00"),
-        output_per_million=Decimal("75.00"),
-        cache_write_per_million=Decimal("18.75"),
-        cache_read_per_million=Decimal("1.50"),
+        input_per_million=Decimal("5.00"),
+        output_per_million=Decimal("25.00"),
+        cache_write_per_million=Decimal("6.25"),
+        cache_read_per_million=Decimal("0.50"),
     ),
     "claude-sonnet-4-6": ModelPricing(
         input_per_million=Decimal("3.00"),
@@ -81,10 +81,10 @@ DEFAULT_PRICING: dict[str, ModelPricing] = {
         cache_read_per_million=Decimal("0.30"),
     ),
     "claude-haiku-4-5-20251001": ModelPricing(
-        input_per_million=Decimal("0.80"),
-        output_per_million=Decimal("4.00"),
-        cache_write_per_million=Decimal("1.00"),
-        cache_read_per_million=Decimal("0.08"),
+        input_per_million=Decimal("1.00"),
+        output_per_million=Decimal("5.00"),
+        cache_write_per_million=Decimal("1.25"),
+        cache_read_per_million=Decimal("0.10"),
     ),
 }
 

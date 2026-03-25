@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "parsimony-cli"
-version = "0.2.3"
-description = "Token usage and cost observability for Claude Code sessions"
+version = "0.3.0"
+description = "Know where your Claude Code tokens go - usage tracking for subscribers"
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.11"

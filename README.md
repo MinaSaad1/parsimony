@@ -1,6 +1,6 @@
 <img src="https://raw.githubusercontent.com/MinaSaad1/parsimony/main/assets/parsimony-title.svg" alt="Parsimony" width="880">
 
-**Token usage and cost observability for Claude Code**
+**Know where your Claude Code tokens go**
 
 <a href="https://pypi.org/project/parsimony-cli/"><img src="https://img.shields.io/pypi/v/parsimony-cli?color=blue" alt="PyPI"></a>
 <a href="https://pypi.org/project/parsimony-cli/"><img src="https://img.shields.io/pypi/pyversions/parsimony-cli" alt="Python"></a>
@@ -9,9 +9,9 @@
 
 ---
 
-You use Claude Code daily but have no idea which sessions cost the most, which tools burn tokens, or whether caching is helping. **Parsimony answers all of these.** No API keys needed. It reads the JSONL files Claude Code already saves on your machine.
+Claude Code subscribers have session and weekly token limits, not per-token charges. But there is no built-in way to see where those tokens went. **Parsimony gives you that visibility.** It reads the JSONL files Claude Code already saves on your machine and shows exactly which sessions, models, and tools consumed your usage allowance. No API keys needed.
 
-**v0.2.0** adds filtering, budget alerts, session diffs, cost trends, and a live terminal dashboard.
+**v0.3.0** reframes the entire tool around **token usage**. Cost is now opt-in via `--show-cost` for users who want API cost comparisons. New features: subscription tier presets (`--tier`), token budgets, token-based filtering, and visual usage gauges.
 
 ---
 
@@ -54,7 +54,7 @@ python -m parsimony                     # if not in PATH
 ## Usage
 
 ```bash
-parsimony                # today's summary (default)
+parsimony                # today's token usage summary (default)
 parsimony yesterday      # yesterday's report
 parsimony week           # this week
 parsimony week --last    # last week
@@ -62,17 +62,56 @@ parsimony month          # this month
 parsimony month 2026-03  # specific month
 ```
 
+All reports lead with token usage. To include API cost estimates, add `--show-cost`:
+
+```bash
+parsimony --show-cost week    # tokens + cost columns
+```
+
+### Subscription Tier Limits
+
+Set your Claude Code subscription tier to see usage gauges against your session token limit:
+
+```bash
+parsimony --tier pro today      # Pro tier (~44K tokens/session)
+parsimony --tier max5 week      # Max 5x tier (~88K tokens/session)
+parsimony --tier max20 budget   # Max 20x tier (~220K tokens/session)
+```
+
+Or configure permanently in `~/.parsimony/config.yaml`:
+
+```yaml
+token_budget:
+  tier: max5                    # use a preset
+  session_limit: 88000          # or override with exact values
+  weekly_limit: 45000000        # manual weekly limit (optional)
+```
+
+When configured, reports show a usage gauge at the top:
+
+```
+Weekly:  [████████████████░░░░░░░░░░░░░░]  32.1M / 45.0M  (71.3%)
+Session Peak:  [██████████████████████░░░░░░░░]  65.2K / 88.0K  (74.1%)
+```
+
 ### Filtering
 
-Narrow any report to specific models, tools, or cost ranges:
+Narrow any report by model, tool, or token usage:
 
 ```bash
 parsimony week --model sonnet                    # only Sonnet sessions
 parsimony today --model opus --model haiku        # Opus or Haiku
 parsimony month --tool Read --tool Write          # sessions using Read or Write
-parsimony week --min-cost 0.50                    # sessions costing $0.50+
-parsimony top sessions --max-cost 1.00            # cheap sessions only
-parsimony week --model sonnet --min-cost 0.10     # combine filters
+parsimony week --min-tokens 50000                 # sessions using 50K+ tokens
+parsimony top sessions --max-tokens 10000         # lightweight sessions only
+parsimony week --model sonnet --min-tokens 10000  # combine filters
+```
+
+Cost-based filtering is also available when using `--show-cost`:
+
+```bash
+parsimony --show-cost week --min-cost 0.50       # sessions costing $0.50+
+parsimony --show-cost top sessions --max-cost 1   # cheap sessions only
 ```
 
 ### Live Dashboard
@@ -90,7 +129,7 @@ parsimony live --project myapp    # filter by project
 | `r` | Force refresh      |
 | `t` | Toggle today/week/month |
 
-The dashboard shows: cost summary with trend arrow, per-model cost bars, top tools by call count, cache hit rate gauge, and a scrollable session log.
+The dashboard shows: token usage summary with trend arrow, per-model token bars, top tools by call count, cache hit rate gauge, usage gauges (when tier is configured), and a scrollable session log sorted by token usage.
 
 <div align="center">
   <picture>
@@ -98,15 +137,20 @@ The dashboard shows: cost summary with trend arrow, per-model cost bars, top too
   </picture>
 </div>
 
-### Budget Alerts
+### Token Budgets
 
-Set daily, weekly, or monthly cost budgets. Warnings appear automatically in matching reports when you approach or exceed limits.
+Set session and weekly token limits matching your subscription tier. Warnings appear automatically in reports when you approach or exceed limits.
 
 ```bash
-parsimony budget    # view current budget status
+parsimony budget                  # view token + cost budget status
+parsimony --tier max5 budget      # with tier preset
 ```
 
-Configure in `~/.parsimony/config.yaml`:
+Color-coded progress bars show: green (<70%), yellow (70-90%), red (>90%).
+
+### Cost Budgets
+
+For API cost comparison, set dollar budgets in `~/.parsimony/config.yaml`:
 
 ```yaml
 budget:
@@ -115,27 +159,33 @@ budget:
   monthly: 80.00
 ```
 
-Budget status shows as OK / NOTE (70%+) / WARN (90%+) / OVER for each configured period.
+Cost budget warnings appear when using `--show-cost`.
 
-### Cost Trends
+### Token Trends
 
-Visualize cost over time with daily bars, 7-day moving averages, and automatic trend direction detection:
+Visualize token usage over time with daily bars, 7-day moving averages, and automatic trend direction detection:
 
 ```bash
-parsimony trend              # 30-day cost trend (default)
+parsimony trend              # 30-day token usage trend (default)
 parsimony trend --days 7     # last 7 days
 parsimony trend --days 90    # last 90 days
 ```
 
+To see cost trends instead:
+
+```bash
+parsimony --show-cost trend --days 30
+```
+
 ### Session Diff
 
-Compare two sessions side-by-side to see how workflow changes affect cost:
+Compare two sessions side-by-side to see how workflow changes affect token usage:
 
 ```bash
 parsimony diff a1b2c3d4 e5f6a7b8    # compare by prefix or full UUID
 ```
 
-Shows deltas for total cost, tokens, cache efficiency, per-model breakdown, and per-tool usage with color-coded arrows.
+Shows deltas for total tokens, input/output breakdown, cache efficiency, per-model breakdown, and per-tool usage with color-coded arrows. Add `--show-cost` to include cost comparison.
 
 ### Session Drill-Down
 
@@ -146,10 +196,10 @@ parsimony session a1b2c3d4   # prefix match or full UUID
 ### Rankings
 
 ```bash
-parsimony top sessions --period week    # most expensive sessions
-parsimony top models   --period month   # cost by model
+parsimony top sessions --period week    # highest-token sessions
+parsimony top models   --period month   # tokens by model
 parsimony top tools    --period all     # most used tools
-parsimony top projects --period week    # cost by project
+parsimony top projects --period week    # tokens by project
 ```
 
 ### Compare Periods
@@ -168,6 +218,8 @@ parsimony trend --days 7 --export json > trend.json
 parsimony diff a1b2 c3d4 --export json > diff.json
 ```
 
+JSON exports always include both token and cost data regardless of `--show-cost`.
+
 ---
 
 ## How It Works
@@ -177,7 +229,7 @@ graph LR
     A["~/.claude/projects/*.jsonl"] --> B["Scanner"]
     B --> C["Reader"]
     C --> D["Session Builder"]
-    D --> E["Cost Engine"]
+    D --> E["Token Engine"]
     D --> F["Grouper"]
     D --> L["Filters"]
     E --> G["Rollup"]
@@ -185,7 +237,7 @@ graph LR
     L --> G
     G --> H["Rich Tables & Charts"]
     G --> I["JSON / CSV Export"]
-    G --> M["Trends & Budget"]
+    G --> M["Trends & Budgets"]
     H --> J["Terminal"]
     I --> K["File"]
     M --> H
@@ -221,7 +273,7 @@ graph TD
     end
 
     subgraph Calculate
-        D --> E["Decimal-precision costs"]
+        D --> E["Token aggregation"]
         E --> F["Group by model / tool / project / day"]
         F --> G["Cache efficiency metrics"]
         G --> G2["Filters / Trends / Budgets"]
@@ -250,21 +302,23 @@ graph TD
 
 ### What Each Report Shows
 
-| Section       | Details                                       |
-| ------------- | --------------------------------------------- |
-| **Summary**   | Total cost, session count, API calls          |
-| **By Model**  | Per-model tokens, cost, share %               |
-| **By Tool**   | Tool call counts, MCP vs built-in             |
-| **Cache**     | Hit rate gauge, read/write breakdown          |
-| **Sessions**  | Time, duration, project, model, cost          |
-| **Budget**    | Spend vs limit with OK/WARN/OVER status       |
-| **Trends**    | Daily cost bars, 7-day moving average, direction |
-| **Diff**      | Side-by-side session comparison with deltas   |
-| **Dashboard** | All of the above, live-updating in real time  |
+| Section       | Details                                         |
+| ------------- | ----------------------------------------------- |
+| **Summary**   | Total tokens (input/output/cache), session count |
+| **By Model**  | Per-model tokens, share %, cost (with --show-cost) |
+| **By Tool**   | Tool call counts, MCP vs built-in               |
+| **Cache**     | Hit rate gauge, read/write breakdown             |
+| **Sessions**  | Time, duration, project, model, tokens           |
+| **Budgets**   | Token usage vs tier limits with progress bars    |
+| **Trends**    | Daily token bars, 7-day moving average, direction |
+| **Diff**      | Side-by-side session comparison with deltas      |
+| **Dashboard** | All of the above, live-updating in real time     |
 
 ---
 
-## Pricing
+## Pricing (API Cost Comparison)
+
+When using `--show-cost`, Parsimony estimates what your usage would cost via the Anthropic API. This is for comparison only and does not reflect your subscription charges.
 
 Built-in pricing for all Claude models. Override at `~/.parsimony/pricing.yaml`:
 
@@ -312,7 +366,7 @@ graph TD
         A1["time_range.py - time windows"]
         A2["grouper.py - group by dimension"]
         A3["rollup.py - full aggregation"]
-        A4["filters.py - model/tool/cost filters"]
+        A4["filters.py - model/tool/token filters"]
         A5["trends.py - moving averages & direction"]
         A6["diff.py - session comparison"]
     end
@@ -323,6 +377,8 @@ graph TD
         O3["formatters.py - $1.23, 1.2M"]
         O4["export.py - JSON & CSV"]
         O5["diff_table.py - diff renderer"]
+        O6["gauges.py - usage progress bars"]
+        O7["display_config.py - show_cost toggle"]
     end
 
     subgraph Dashboard
@@ -332,7 +388,7 @@ graph TD
     end
 
     subgraph Budget
-        B1["budget.py - thresholds & alerts"]
+        B1["budget.py - cost & token budgets"]
     end
 
     subgraph Cache
@@ -357,7 +413,7 @@ graph TD
 git clone https://github.com/MinaSaad1/parsimony.git
 cd parsimony
 pip install -e ".[dev,dashboard]"
-pytest                # 260 tests, 80%+ coverage
+pytest                # 325 tests, 80%+ coverage
 ruff check src/       # lint
 mypy src/             # type check
 ```

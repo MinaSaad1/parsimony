@@ -1,12 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="780" height="155" viewBox="0 0 780 155">
+<svg xmlns="http://www.w3.org/2000/svg" width="890" height="155" viewBox="0 0 890 155">
   <rect width="100%" height="100%" fill="#0d1117" rx="8"/>
   <text font-family="'Courier New', Courier, monospace" font-size="14.5" fill="#22d3ee" xml:space="preserve">
-    <tspan x="28" y="35"> ██████╗  █████╗ ██████╗ ███████╗██╗███╗   ███╗ ██████╗ ███╗   ██╗██╗   ██╗</tspan>
-    <tspan x="28" y="53"> ██╔══██╗██╔══██╗██╔══██╗██╔════╝██║████╗ ████║██╔═══██╗████╗  ██║╚██╗ ██╔╝</tspan>
-    <tspan x="28" y="71"> ██████╔╝███████║██████╔╝███████╗██║██╔████╔██║██║   ██║██╔██╗ ██║ ╚████╔╝ </tspan>
-    <tspan x="28" y="89"> ██╔═══╝ ██╔══██║██╔══██╗╚════██║██║██║╚██╔╝██║██║   ██║██║╚██╗██║  ╚██╔╝  </tspan>
-    <tspan x="28" y="107"> ██║     ██║  ██║██║  ██║███████║██║██║ ╚═╝ ██║╚██████╔╝██║ ╚████║   ██║   </tspan>
-    <tspan x="28" y="125"> ╚═╝     ╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝╚═╝╚═╝     ╚═╝ ╚═════╝ ╚═╝  ╚═══╝   ╚═╝   </tspan>
+    <tspan x="28" y="35"> ██████╗   █████╗  ██████╗  ███████╗ ██╗ ███╗   ███╗  ██████╗  ███╗   ██╗ ██╗   ██╗</tspan>
+    <tspan x="28" y="53"> ██╔══██╗ ██╔══██╗ ██╔══██╗ ██╔════╝ ██║ ████╗ ████║ ██╔═══██╗ ████╗  ██║ ╚██╗ ██╔╝</tspan>
+    <tspan x="28" y="71"> ██████╔╝ ███████║ ██████╔╝ ███████╗ ██║ ██╔████╔██║ ██║   ██║ ██╔██╗ ██║  ╚████╔╝ </tspan>
+    <tspan x="28" y="89"> ██╔═══╝  ██╔══██║ ██╔══██╗ ╚════██║ ██║ ██║╚██╔╝██║ ██║   ██║ ██║╚██╗██║  ╚██╔╝  </tspan>
+    <tspan x="28" y="107"> ██║      ██║  ██║ ██║  ██║ ███████║ ██║ ██║ ╚═╝ ██║ ╚██████╔╝ ██║ ╚████║   ██║   </tspan>
+    <tspan x="28" y="125"> ╚═╝      ╚═╝  ╚═╝ ╚═╝  ╚═╝ ╚══════╝ ╚═╝ ╚═╝     ╚═╝  ╚═════╝  ╚═╝  ╚═══╝   ╚═╝   </tspan>
   </text>
-  <text font-family="'Segoe UI', Arial, sans-serif" font-size="13" fill="#8b949e" text-anchor="middle" x="390" y="148">Token usage and cost observability for Claude Code</text>
+  <text font-family="'Segoe UI', Arial, sans-serif" font-size="13" fill="#8b949e" text-anchor="middle" x="445" y="148">Token usage and cost observability for Claude Code</text>
 </svg>

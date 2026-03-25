@@ -13,13 +13,28 @@ from parsimony.aggregator.filters import SessionFilter, apply_filters
 from parsimony.aggregator.grouper import group_by_day
 from parsimony.aggregator.rollup import SessionRollup, compute_rollup
 from parsimony.aggregator.time_range import TimeRange, filter_sessions
-from parsimony.budget import BudgetStatus, check_budget, load_budget
+from parsimony.budget import (
+    BudgetStatus,
+    TokenBudgetStatus,
+    check_budget,
+    check_token_budget,
+    load_budget,
+    load_token_budget,
+)
 from parsimony.config import load_pricing
 from parsimony.models.cost import ModelPricing, calculate_session_cost
 from parsimony.models.session import Session
-from parsimony.output.charts import render_cache_gauge, render_cost_trend, render_model_distribution
+from parsimony.output.charts import (
+    render_cache_gauge,
+    render_cost_trend,
+    render_model_distribution,
+    render_model_token_distribution,
+    render_token_trend,
+)
+from parsimony.output.display_config import DisplayConfig
 from parsimony.output.export import export_csv, export_json
-from parsimony.output.formatters import format_model_name
+from parsimony.output.formatters import format_model_name, format_tokens
+from parsimony.output.gauges import render_usage_summary
 from parsimony.output.tables import (
     render_budget_warning,
     render_comparison,
@@ -28,6 +43,7 @@ from parsimony.output.tables import (
     render_session_detail,
     render_session_list,
     render_summary,
+    render_token_budget_warning,
     render_tool_breakdown,
 )
 from parsimony.parser.reader import read_events
@@ -98,8 +114,13 @@ def _render_report(
     pricing: dict[str, ModelPricing],
     export_format: str | None = None,
     session_filter: SessionFilter | None = None,
+    config: DisplayConfig | None = None,
+    tier: str | None = None,
 ) -> None:
     """Filter sessions, compute rollup, and render output."""
+    if config is None:
+        config = DisplayConfig()
+
     filtered = filter_sessions(sessions, time_range)
 
     if session_filter and not session_filter.is_empty:
@@ -118,37 +139,66 @@ def _render_report(
         click.echo(export_csv(rollup))
         return
 
-    # Budget warnings
-    budget_cfg = load_budget()
-    if budget_cfg.is_configured:
-        statuses: list[BudgetStatus] = []
-        if budget_cfg.daily is not None and "today" in time_range.label.lower():
-            statuses.append(check_budget(rollup.total_cost, budget_cfg.daily, "daily"))
-        if budget_cfg.weekly is not None and "week" in time_range.label.lower():
-            statuses.append(check_budget(rollup.total_cost, budget_cfg.weekly, "weekly"))
-        if budget_cfg.monthly is not None and "month" in time_range.label.lower():
-            statuses.append(
-                check_budget(rollup.total_cost, budget_cfg.monthly, "monthly"),
-            )
-        warning = render_budget_warning(statuses) if statuses else None
-        if warning:
-            console.print(warning)
+    # Budget warnings (cost-based, only when show_cost)
+    if config.show_cost:
+        budget_cfg = load_budget()
+        if budget_cfg.is_configured:
+            statuses: list[BudgetStatus] = []
+            if budget_cfg.daily is not None and "today" in time_range.label.lower():
+                statuses.append(check_budget(rollup.total_cost, budget_cfg.daily, "daily"))
+            if budget_cfg.weekly is not None and "week" in time_range.label.lower():
+                statuses.append(check_budget(rollup.total_cost, budget_cfg.weekly, "weekly"))
+            if budget_cfg.monthly is not None and "month" in time_range.label.lower():
+                statuses.append(
+                    check_budget(rollup.total_cost, budget_cfg.monthly, "monthly"),
+                )
+            warning = render_budget_warning(statuses) if statuses else None
+            if warning:
+                console.print(warning)
 
-    console.print(render_summary(rollup, label=time_range.label))
-    console.print(render_model_breakdown(rollup))
+    # Token budget warnings and gauges
+    token_cfg = load_token_budget(tier=tier)
+    if token_cfg.is_configured:
+        token_statuses: list[TokenBudgetStatus] = []
+        weekly_tokens = 0
+        peak = 0
+        if token_cfg.weekly_limit is not None and "week" in time_range.label.lower():
+            weekly_tokens = rollup.total_tokens
+            token_statuses.append(
+                check_token_budget(rollup.total_tokens, token_cfg.weekly_limit, "weekly")
+            )
+        if token_cfg.session_limit is not None:
+            peak = max((s.total_tokens for s in filtered), default=0)
+            token_statuses.append(
+                check_token_budget(peak, token_cfg.session_limit, "session peak")
+            )
+        token_warning = render_token_budget_warning(token_statuses)
+        if token_warning:
+            console.print(token_warning)
+        console.print(render_usage_summary(token_cfg, weekly_tokens, peak))
+
+    console.print(render_summary(rollup, label=time_range.label, config=config))
+    console.print(render_model_breakdown(rollup, config=config))
     console.print(render_tool_breakdown(rollup))
 
     if rollup.mcp_breakdown:
         console.print(render_mcp_breakdown(rollup))
 
-    # Daily cost trend
+    # Daily trend
     daily = group_by_day(filtered)
     if len(daily) > 1:
-        daily_costs = []
-        for day in sorted(daily):
-            day_rollup = compute_rollup(daily[day], pricing)
-            daily_costs.append((day.strftime("%b %d"), day_rollup.total_cost))
-        console.print(render_cost_trend(daily_costs))
+        if config.show_cost:
+            daily_costs = []
+            for day in sorted(daily):
+                day_rollup = compute_rollup(daily[day], pricing)
+                daily_costs.append((day.strftime("%b %d"), day_rollup.total_cost))
+            console.print(render_cost_trend(daily_costs))
+        else:
+            daily_tokens = []
+            for day in sorted(daily):
+                day_rollup = compute_rollup(daily[day], pricing)
+                daily_tokens.append((day.strftime("%b %d"), day_rollup.total_tokens))
+            console.print(render_token_trend(daily_tokens))
 
     console.print(render_cache_gauge(rollup.cache_efficiency))
 
@@ -156,7 +206,7 @@ def _render_report(
     session_costs = [
         (s, calculate_session_cost(s, pricing)) for s in filtered
     ]
-    console.print(render_session_list(session_costs))
+    console.print(render_session_list(session_costs, config=config))
 
 
 # ---------------------------------------------------------------------------
@@ -170,9 +220,13 @@ def _build_session_filter(ctx: click.Context) -> SessionFilter:
     tools = ctx.obj.get("filter_tools")
     min_cost = ctx.obj.get("filter_min_cost")
     max_cost = ctx.obj.get("filter_max_cost")
+    min_tokens = ctx.obj.get("filter_min_tokens")
+    max_tokens = ctx.obj.get("filter_max_tokens")
     return SessionFilter(
         models=frozenset(models) if models else None,
         tools=frozenset(tools) if tools else None,
+        min_tokens=min_tokens,
+        max_tokens=max_tokens,
         min_cost=Decimal(str(min_cost)) if min_cost is not None else None,
         max_cost=Decimal(str(max_cost)) if max_cost is not None else None,
     )
@@ -184,6 +238,8 @@ def _build_session_filter(ctx: click.Context) -> SessionFilter:
               help="Export report as JSON or CSV.")
 @click.option("--no-cache", is_flag=True, help="Disable session cache.")
 @click.option("--verbose", "-v", is_flag=True, help="Enable verbose logging.")
+@click.option("--show-cost", is_flag=True,
+              help="Show cost columns alongside token usage.")
 @click.option("--model", "filter_models", multiple=True,
               help="Filter by model (e.g. sonnet, opus, haiku). Repeatable.")
 @click.option("--tool", "filter_tools", multiple=True,
@@ -192,6 +248,12 @@ def _build_session_filter(ctx: click.Context) -> SessionFilter:
               help="Minimum session cost threshold (USD).")
 @click.option("--max-cost", "filter_max_cost", type=float, default=None,
               help="Maximum session cost threshold (USD).")
+@click.option("--min-tokens", "filter_min_tokens", type=int, default=None,
+              help="Minimum session token threshold.")
+@click.option("--max-tokens", "filter_max_tokens", type=int, default=None,
+              help="Maximum session token threshold.")
+@click.option("--tier", type=click.Choice(["pro", "max5", "max20"]), default=None,
+              help="Subscription tier for token limits.")
 @click.pass_context
 def main(
     ctx: click.Context,
@@ -199,10 +261,14 @@ def main(
     export_format: str | None,
     no_cache: bool,
     verbose: bool,
+    show_cost: bool,
     filter_models: tuple[str, ...],
     filter_tools: tuple[str, ...],
     filter_min_cost: float | None,
     filter_max_cost: float | None,
+    filter_min_tokens: int | None,
+    filter_max_tokens: int | None,
+    tier: str | None,
 ) -> None:
     """Parsimony: Know where every token goes."""
     if verbose:
@@ -215,16 +281,24 @@ def main(
     ctx.obj["export_format"] = export_format
     ctx.obj["use_cache"] = not no_cache
     ctx.obj["pricing"] = load_pricing()
+    ctx.obj["show_cost"] = show_cost
+    ctx.obj["config"] = DisplayConfig(show_cost=show_cost)
     ctx.obj["filter_models"] = filter_models if filter_models else None
     ctx.obj["filter_tools"] = filter_tools if filter_tools else None
     ctx.obj["filter_min_cost"] = filter_min_cost
     ctx.obj["filter_max_cost"] = filter_max_cost
+    ctx.obj["filter_min_tokens"] = filter_min_tokens
+    ctx.obj["filter_max_tokens"] = filter_max_tokens
+    ctx.obj["tier"] = tier
 
     if ctx.invoked_subcommand is None:
         # Default: show today's report
         sessions = _load_all_sessions(project, use_cache=not no_cache)
         sf = _build_session_filter(ctx)
-        _render_report(sessions, TimeRange.today(), ctx.obj["pricing"], export_format, sf)
+        _render_report(
+            sessions, TimeRange.today(), ctx.obj["pricing"],
+            export_format, sf, ctx.obj["config"], tier=tier,
+        )
 
 
 @main.command()
@@ -233,7 +307,10 @@ def today(ctx: click.Context) -> None:
     """Show today's usage report."""
     sessions = _load_all_sessions(ctx.obj["project"], ctx.obj["use_cache"])
     sf = _build_session_filter(ctx)
-    _render_report(sessions, TimeRange.today(), ctx.obj["pricing"], ctx.obj["export_format"], sf)
+    _render_report(
+        sessions, TimeRange.today(), ctx.obj["pricing"],
+        ctx.obj["export_format"], sf, ctx.obj["config"], tier=ctx.obj.get("tier"),
+    )
 
 
 @main.command()
@@ -243,7 +320,8 @@ def yesterday(ctx: click.Context) -> None:
     sessions = _load_all_sessions(ctx.obj["project"], ctx.obj["use_cache"])
     sf = _build_session_filter(ctx)
     _render_report(
-        sessions, TimeRange.yesterday(), ctx.obj["pricing"], ctx.obj["export_format"], sf,
+        sessions, TimeRange.yesterday(), ctx.obj["pricing"],
+        ctx.obj["export_format"], sf, ctx.obj["config"], tier=ctx.obj.get("tier"),
     )
 
 
@@ -255,7 +333,10 @@ def week(ctx: click.Context, last: bool) -> None:
     time_range = TimeRange.last_week() if last else TimeRange.this_week()
     sessions = _load_all_sessions(ctx.obj["project"], ctx.obj["use_cache"])
     sf = _build_session_filter(ctx)
-    _render_report(sessions, time_range, ctx.obj["pricing"], ctx.obj["export_format"], sf)
+    _render_report(
+        sessions, time_range, ctx.obj["pricing"],
+        ctx.obj["export_format"], sf, ctx.obj["config"], tier=ctx.obj.get("tier"),
+    )
 
 
 @main.command()
@@ -280,7 +361,10 @@ def month(ctx: click.Context, year_month: str | None) -> None:
 
     sessions = _load_all_sessions(ctx.obj["project"], ctx.obj["use_cache"])
     sf = _build_session_filter(ctx)
-    _render_report(sessions, time_range, ctx.obj["pricing"], ctx.obj["export_format"], sf)
+    _render_report(
+        sessions, time_range, ctx.obj["pricing"],
+        ctx.obj["export_format"], sf, ctx.obj["config"], tier=ctx.obj.get("tier"),
+    )
 
 
 @main.command()
@@ -291,31 +375,34 @@ def budget(ctx: click.Context) -> None:
     from parsimony.output.formatters import format_percentage as _fmt_pct
 
     budget_cfg = load_budget()
-    if not budget_cfg.is_configured:
+    token_cfg = load_token_budget(tier=ctx.obj.get("tier"))
+    any_configured = budget_cfg.is_configured or token_cfg.is_configured
+
+    if not any_configured:
         console.print("[dim]No budget configured.[/dim]")
         console.print("[dim]Add a budget section to ~/.parsimony/config.yaml:[/dim]")
         console.print("[cyan]  budget:\n    daily: 5.00\n    weekly: 25.00\n    monthly: 80.00[/]")
+        console.print("[dim]Or pass --tier pro|max5|max20 for token limits.[/dim]")
         return
 
     pricing = ctx.obj["pricing"]
     sessions = _load_all_sessions(ctx.obj["project"], ctx.obj["use_cache"])
 
-    checks: list[tuple[str, Decimal | None, TimeRange]] = [
-        ("daily", budget_cfg.daily, TimeRange.today()),
-        ("weekly", budget_cfg.weekly, TimeRange.this_week()),
-        ("monthly", budget_cfg.monthly, TimeRange.this_month()),
-    ]
+    if budget_cfg.is_configured:
+        checks: list[tuple[str, Decimal | None, TimeRange]] = [
+            ("daily", budget_cfg.daily, TimeRange.today()),
+            ("weekly", budget_cfg.weekly, TimeRange.this_week()),
+            ("monthly", budget_cfg.monthly, TimeRange.this_month()),
+        ]
 
-    statuses: list[BudgetStatus] = []
-    for period, limit, tr in checks:
-        if limit is None:
-            continue
-        filtered = filter_sessions(sessions, tr)
-        rollup = compute_rollup(filtered, pricing)
-        statuses.append(check_budget(rollup.total_cost, limit, period))
+        statuses: list[BudgetStatus] = []
+        for period, limit, tr in checks:
+            if limit is None:
+                continue
+            filtered = filter_sessions(sessions, tr)
+            rollup = compute_rollup(filtered, pricing)
+            statuses.append(check_budget(rollup.total_cost, limit, period))
 
-    # Always show the panel, even if under budget
-    if statuses:
         for s in statuses:
             if s.over_budget:
                 style = "bold red"
@@ -335,12 +422,34 @@ def budget(ctx: click.Context) -> None:
                 f"({_fmt_pct(s.percentage)})",
             )
 
+    if token_cfg.is_configured:
+        token_statuses: list[TokenBudgetStatus] = []
+        weekly_tokens = 0
+        peak = 0
+        if token_cfg.weekly_limit is not None:
+            weekly_filtered = filter_sessions(sessions, TimeRange.this_week())
+            weekly_rollup = compute_rollup(weekly_filtered, pricing)
+            weekly_tokens = weekly_rollup.total_tokens
+            token_statuses.append(
+                check_token_budget(weekly_tokens, token_cfg.weekly_limit, "weekly")
+            )
+        if token_cfg.session_limit is not None:
+            today_filtered = filter_sessions(sessions, TimeRange.today())
+            peak = max((s.total_tokens for s in today_filtered), default=0)
+            token_statuses.append(
+                check_token_budget(peak, token_cfg.session_limit, "session peak")
+            )
+        token_warning = render_token_budget_warning(token_statuses)
+        if token_warning:
+            console.print(token_warning)
+        console.print(render_usage_summary(token_cfg, weekly_tokens, peak))
+
 
 @main.command()
 @click.option("--days", "-d", default=30, help="Number of days to analyze (default 30).")
 @click.pass_context
 def trend(ctx: click.Context, days: int) -> None:
-    """Show cost trends over time with moving averages."""
+    """Show usage trends over time with moving averages."""
     from parsimony.aggregator.trends import (
         compute_trends,
         moving_average,
@@ -349,6 +458,7 @@ def trend(ctx: click.Context, days: int) -> None:
     from parsimony.output.charts import render_trend_chart, render_trend_summary
 
     pricing = ctx.obj["pricing"]
+    config: DisplayConfig = ctx.obj["config"]
     sessions = _load_all_sessions(ctx.obj["project"], ctx.obj["use_cache"])
     time_range = TimeRange.last_n_days(days)
     filtered = filter_sessions(sessions, time_range)
@@ -377,8 +487,18 @@ def trend(ctx: click.Context, days: int) -> None:
         click.echo(json.dumps(data, indent=2))
         return
 
-    console.print(render_trend_summary(trends, direction))
-    console.print(render_trend_chart(trends, ma))
+    metric = "cost" if config.show_cost else "tokens"
+    if metric == "tokens":
+        # Compute token moving averages
+        from parsimony.aggregator.trends import moving_average_tokens
+        token_ma = moving_average_tokens(trends, window=7)
+        from parsimony.aggregator.trends import trend_direction_tokens
+        direction = trend_direction_tokens(trends, window=7)
+        console.print(render_trend_summary(trends, direction, metric=metric))
+        console.print(render_trend_chart(trends, token_ma, metric=metric))
+    else:
+        console.print(render_trend_summary(trends, direction, metric=metric))
+        console.print(render_trend_chart(trends, ma, metric=metric))
 
 
 @main.command(name="diff")
@@ -395,6 +515,7 @@ def diff_cmd(ctx: click.Context, session1: str, session2: str) -> None:
 
     sessions = _load_all_sessions(ctx.obj["project"], ctx.obj["use_cache"])
     pricing = ctx.obj["pricing"]
+    config: DisplayConfig = ctx.obj["config"]
 
     def _find(prefix: str) -> Session:
         matches = [s for s in sessions if s.session_id.startswith(prefix)]
@@ -433,7 +554,7 @@ def diff_cmd(ctx: click.Context, session1: str, session2: str) -> None:
         click.echo(json.dumps(data, indent=2))
         return
 
-    console.print(render_diff(result))
+    console.print(render_diff(result, config=config))
 
 
 @main.command()
@@ -456,7 +577,10 @@ def live(ctx: click.Context, live_project: str | None) -> None:
         sys.exit(1)
 
     project = live_project or ctx.obj.get("project")
-    app = ParsimonyDashboard(project_filter=project, pricing=ctx.obj["pricing"])
+    config: DisplayConfig = ctx.obj["config"]
+    app = ParsimonyDashboard(
+        project_filter=project, pricing=ctx.obj["pricing"], config=config,
+    )
     app.run()
 
 
@@ -470,6 +594,7 @@ def session(ctx: click.Context, session_id: str) -> None:
     """
     sessions = _load_all_sessions(ctx.obj["project"], ctx.obj["use_cache"])
     pricing = ctx.obj["pricing"]
+    config: DisplayConfig = ctx.obj["config"]
 
     matches = [s for s in sessions if s.session_id.startswith(session_id)]
     if not matches:
@@ -489,15 +614,15 @@ def session(ctx: click.Context, session_id: str) -> None:
         data = {
             "session_id": target.session_id,
             "project": target.project_name,
+            "total_tokens": target.total_tokens,
             "total_cost": float(cost.total),
             "models": list(target.models_used),
             "total_api_calls": target.total_api_calls,
-            "total_tokens": target.total_tokens,
         }
         click.echo(json.dumps(data, indent=2))
         return
 
-    console.print(render_session_detail(target, cost))
+    console.print(render_session_detail(target, cost, config=config))
 
 
 @main.command()
@@ -516,6 +641,7 @@ def top(ctx: click.Context, dimension: str, period: str, limit: int) -> None:
     }
     time_range = time_ranges[period]()
     pricing = ctx.obj["pricing"]
+    config: DisplayConfig = ctx.obj["config"]
     sessions = _load_all_sessions(ctx.obj["project"], ctx.obj["use_cache"])
     filtered = filter_sessions(sessions, time_range)
 
@@ -529,15 +655,22 @@ def top(ctx: click.Context, dimension: str, period: str, limit: int) -> None:
 
     if dimension == "sessions":
         session_costs = [(s, calculate_session_cost(s, pricing)) for s in filtered]
-        console.print(render_session_list(session_costs, limit=limit))
+        console.print(render_session_list(session_costs, limit=limit, config=config))
 
     elif dimension == "models":
         rollup = compute_rollup(filtered, pricing)
-        console.print(render_model_breakdown(rollup))
-        model_costs = {
-            format_model_name(m): mr.cost for m, mr in rollup.per_model.items()
-        }
-        console.print(render_model_distribution(model_costs))
+        console.print(render_model_breakdown(rollup, config=config))
+        if config.show_cost:
+            model_costs = {
+                format_model_name(m): mr.cost for m, mr in rollup.per_model.items()
+            }
+            console.print(render_model_distribution(model_costs))
+        else:
+            model_tokens = {
+                format_model_name(m): mr.total_tokens
+                for m, mr in rollup.per_model.items()
+            }
+            console.print(render_model_token_distribution(model_tokens))
 
     elif dimension == "tools":
         rollup = compute_rollup(filtered, pricing)
@@ -555,16 +688,25 @@ def top(ctx: click.Context, dimension: str, period: str, limit: int) -> None:
                       show_header=True, header_style="bold magenta")
         table.add_column("Project", style="cyan")
         table.add_column("Sessions", justify="right")
-        table.add_column("Cost", justify="right", style="green")
+        table.add_column("Tokens", justify="right", style="bold cyan")
+        if config.show_cost:
+            table.add_column("Cost", justify="right", style="green")
 
-        project_costs = []
+        project_data = []
         for proj_name, proj_sessions in groups.items():
             rollup = compute_rollup(proj_sessions, pricing)
-            project_costs.append((proj_name, len(proj_sessions), rollup.total_cost))
+            project_data.append(
+                (proj_name, len(proj_sessions), rollup.total_tokens, rollup.total_cost)
+            )
 
         from parsimony.output.formatters import format_cost
-        for name, count, cost in sorted(project_costs, key=lambda x: x[2], reverse=True)[:limit]:
-            table.add_row(name, str(count), format_cost(cost))
+        for name, count, tokens, cost in sorted(
+            project_data, key=lambda x: x[2], reverse=True
+        )[:limit]:
+            row = [name, str(count), format_tokens(tokens)]
+            if config.show_cost:
+                row.append(format_cost(cost))
+            table.add_row(*row)
         console.print(table)
 
 
@@ -578,6 +720,7 @@ def compare(ctx: click.Context, last: int, period: str) -> None:
     from datetime import timedelta
 
     pricing = ctx.obj["pricing"]
+    config: DisplayConfig = ctx.obj["config"]
     sessions = _load_all_sessions(ctx.obj["project"], ctx.obj["use_cache"])
 
     labeled_rollups: list[tuple[str, SessionRollup]] = []
@@ -626,10 +769,15 @@ def compare(ctx: click.Context, last: int, period: str) -> None:
     if ctx.obj["export_format"] == "json":
         import json
         data = [
-            {"label": label, "sessions": r.session_count, "total_cost": float(r.total_cost)}
+            {
+                "label": label,
+                "sessions": r.session_count,
+                "total_tokens": r.total_tokens,
+                "total_cost": float(r.total_cost),
+            }
             for label, r in labeled_rollups
         ]
         click.echo(json.dumps(data, indent=2))
         return
 
-    console.print(render_comparison(labeled_rollups))
+    console.print(render_comparison(labeled_rollups, config=config))

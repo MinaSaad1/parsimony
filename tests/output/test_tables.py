@@ -13,6 +13,7 @@ from rich.text import Text
 from parsimony.aggregator.rollup import compute_rollup
 from parsimony.models.cost import calculate_session_cost
 from parsimony.models.session import Session
+from parsimony.output.display_config import DisplayConfig
 from parsimony.output.tables import (
     render_comparison,
     render_mcp_breakdown,
@@ -49,11 +50,18 @@ class TestRenderSummary:
         result = render_summary(rollup)
         assert isinstance(result, Panel)
 
-    def test_includes_cost(self) -> None:
+    def test_includes_cost_when_show_cost(self) -> None:
+        session = _make_session("simple_session.jsonl", "s1")
+        rollup = compute_rollup([session])
+        config = DisplayConfig(show_cost=True)
+        text = _render_to_string(render_summary(rollup, config=config))
+        assert "$" in text
+
+    def test_hides_cost_by_default(self) -> None:
         session = _make_session("simple_session.jsonl", "s1")
         rollup = compute_rollup([session])
         text = _render_to_string(render_summary(rollup))
-        assert "$" in text
+        assert "$" not in text
 
     def test_label_in_title(self) -> None:
         session = _make_session("simple_session.jsonl", "s1")

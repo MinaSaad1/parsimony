@@ -14,16 +14,20 @@ from textual.widgets import Footer, Header, Static
 from parsimony.aggregator.rollup import compute_rollup
 from parsimony.aggregator.time_range import TimeRange, filter_sessions
 from parsimony.aggregator.trends import compute_trends, trend_direction
+from parsimony.budget import TokenBudgetConfig, load_token_budget
 from parsimony.config import load_pricing
 from parsimony.dashboard.widgets import (
     CacheGauge,
-    CostHeader,
     ModelBreakdown,
     SessionLog,
+    SessionPeakGauge,
     ToolList,
+    UsageGauge,
+    UsageHeader,
 )
 from parsimony.models.cost import ModelPricing, calculate_session_cost
 from parsimony.models.session import Session
+from parsimony.output.display_config import DisplayConfig
 
 logger = logging.getLogger("parsimony.dashboard.app")
 
@@ -59,12 +63,12 @@ def _load_sessions_for_dashboard(
 
 
 class ParsimonyDashboard(App[None]):
-    """Live terminal dashboard for Claude Code cost monitoring."""
+    """Live terminal dashboard for Claude Code usage monitoring."""
 
     TITLE = "Parsimony Dashboard"
 
     CSS = """
-    #cost-header {
+    #usage-header {
         height: 3;
         background: $surface;
         border-bottom: solid $primary;
@@ -105,6 +109,16 @@ class ParsimonyDashboard(App[None]):
         background: $surface;
         padding: 0 1;
     }
+    #usage-gauge {
+        height: 3;
+        padding: 1;
+        border: solid $primary;
+    }
+    #session-peak-gauge {
+        height: 3;
+        padding: 1;
+        border: solid $primary;
+    }
     """
 
     BINDINGS = [
@@ -117,17 +131,25 @@ class ParsimonyDashboard(App[None]):
         self,
         project_filter: str | None = None,
         pricing: dict[str, ModelPricing] | None = None,
+        config: DisplayConfig | None = None,
+        token_budget: TokenBudgetConfig | None = None,
     ) -> None:
         super().__init__()
         self._project_filter = project_filter
         self._pricing = pricing or load_pricing()
+        self._config = config or DisplayConfig()
+        self._token_budget = token_budget or load_token_budget()
         self._period_index = 0
         self._stop_event = asyncio.Event()
         self._watcher_task: asyncio.Task[None] | None = None
 
     def compose(self) -> ComposeResult:
         yield Header()
-        yield CostHeader(id="cost-header")
+        yield UsageHeader(id="usage-header")
+        if self._token_budget.weekly_limit is not None:
+            yield UsageGauge(id="usage-gauge")
+        if self._token_budget.session_limit is not None:
+            yield SessionPeakGauge(id="session-peak-gauge")
         with Horizontal(id="main-area"):
             with Vertical(id="left-panel"):
                 yield ModelBreakdown(id="model-breakdown")
@@ -171,7 +193,7 @@ class ParsimonyDashboard(App[None]):
             filtered = filter_sessions(sessions, time_range)
 
             if not filtered:
-                self.query_one("#cost-header", CostHeader).update(
+                self.query_one("#usage-header", UsageHeader).update(
                     f"  No sessions found for {time_range.label}"
                 )
                 return
@@ -183,16 +205,35 @@ class ParsimonyDashboard(App[None]):
             direction = trend_direction(trends, window=3)
 
             # Update widgets
-            self.query_one("#cost-header", CostHeader).update_data(rollup, direction)
-            self.query_one("#model-breakdown", ModelBreakdown).update_data(rollup)
+            self.query_one("#usage-header", UsageHeader).update_data(
+                rollup, direction, self._config,
+            )
+            self.query_one("#model-breakdown", ModelBreakdown).update_data(
+                rollup, self._config,
+            )
             self.query_one("#tool-list", ToolList).update_data(rollup)
-            self.query_one("#cache-gauge", CacheGauge).update_data(rollup.cache_efficiency)
+            self.query_one("#cache-gauge", CacheGauge).update_data(
+                rollup.cache_efficiency,
+            )
 
             # Session log
             session_costs = [
                 (s, calculate_session_cost(s, self._pricing)) for s in filtered
             ]
             self.query_one("#session-log", SessionLog).update_data(session_costs)
+
+            # Token budget gauges
+            if self._token_budget.weekly_limit is not None:
+                weekly_filtered = filter_sessions(sessions, TimeRange.this_week())
+                weekly_rollup = compute_rollup(weekly_filtered, self._pricing)
+                self.query_one("#usage-gauge", UsageGauge).update_data(
+                    weekly_rollup.total_tokens, self._token_budget.weekly_limit,
+                )
+            if self._token_budget.session_limit is not None:
+                peak = max((s.total_tokens for s in filtered), default=0)
+                self.query_one("#session-peak-gauge", SessionPeakGauge).update_data(
+                    peak, self._token_budget.session_limit,
+                )
 
             # Status bar
             period = _PERIOD_CYCLE[self._period_index]

@@ -26,6 +26,11 @@ def _rollup_to_dict(rollup: SessionRollup) -> dict[str, Any]:
     return {
         "session_count": rollup.session_count,
         "total_tokens": rollup.total_tokens,
+        "total_input_tokens": rollup.total_input_tokens,
+        "total_output_tokens": rollup.total_output_tokens,
+        "total_cache_write_tokens": rollup.total_cache_write_tokens,
+        "total_cache_read_tokens": rollup.total_cache_read_tokens,
+        "avg_tokens_per_session": rollup.avg_tokens_per_session,
         "total_cost": float(rollup.total_cost),
         "avg_cost_per_session": float(rollup.avg_cost_per_session),
         "cache_efficiency": rollup.cache_efficiency,

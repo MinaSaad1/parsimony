@@ -13,7 +13,9 @@ from parsimony.aggregator.trends import (
     DailyTrend,
     compute_trends,
     moving_average,
+    moving_average_tokens,
     trend_direction,
+    trend_direction_tokens,
 )
 from parsimony.cli import main
 from parsimony.models.session import Session
@@ -136,6 +138,59 @@ class TestTrendDirection:
         costs = [0.0] * 7 + [5.0] * 7
         trends = _make_trends(costs)
         assert trend_direction(trends, window=7) == "rising"
+
+
+def _make_trends_tokens(token_values: list[int], start: date | None = None) -> list[DailyTrend]:
+    if start is None:
+        start = date(2026, 3, 1)
+    return [
+        DailyTrend(
+            day=start + timedelta(days=i),
+            cost=Decimal("0"),
+            tokens=t,
+            sessions=1 if t > 0 else 0,
+            cache_efficiency=50.0,
+        )
+        for i, t in enumerate(token_values)
+    ]
+
+
+class TestMovingAverageTokens:
+    def test_constant_values(self) -> None:
+        trends = _make_trends_tokens([5000] * 10)
+        ma = moving_average_tokens(trends, window=3)
+        assert len(ma) == 10
+        for avg in ma[2:]:
+            assert avg == 5000
+
+    def test_increasing_values(self) -> None:
+        trends = _make_trends_tokens([1000, 2000, 3000, 4000, 5000])
+        ma = moving_average_tokens(trends, window=3)
+        assert ma[4] == 4000  # avg of 3000, 4000, 5000
+
+    def test_empty(self) -> None:
+        ma = moving_average_tokens([], window=7)
+        assert ma == []
+
+
+class TestTrendDirectionTokens:
+    def test_rising(self) -> None:
+        tokens = [1000] * 7 + [5000] * 7
+        trends = _make_trends_tokens(tokens)
+        assert trend_direction_tokens(trends, window=7) == "rising"
+
+    def test_falling(self) -> None:
+        tokens = [5000] * 7 + [1000] * 7
+        trends = _make_trends_tokens(tokens)
+        assert trend_direction_tokens(trends, window=7) == "falling"
+
+    def test_stable(self) -> None:
+        tokens = [5000] * 14
+        trends = _make_trends_tokens(tokens)
+        assert trend_direction_tokens(trends, window=7) == "stable"
+
+    def test_empty(self) -> None:
+        assert trend_direction_tokens([], window=7) == "stable"
 
 
 class TestTrendCLI:

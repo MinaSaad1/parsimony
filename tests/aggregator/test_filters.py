@@ -172,3 +172,31 @@ class TestApplyFilters:
         filt = SessionFilter(models=frozenset(["sonnet"]))
         result = apply_filters([], filt)
         assert result == []
+
+
+class TestTokenFilters:
+    def test_is_empty_with_min_tokens(self) -> None:
+        filt = SessionFilter(min_tokens=1000)
+        assert filt.is_empty is False
+
+    def test_is_empty_with_max_tokens(self) -> None:
+        filt = SessionFilter(max_tokens=100000)
+        assert filt.is_empty is False
+
+    def test_filter_by_min_tokens(self) -> None:
+        sessions = _sessions()
+        filt = SessionFilter(min_tokens=999_999_999)
+        result = apply_filters(sessions, filt)
+        assert len(result) == 0
+
+    def test_filter_by_max_tokens(self) -> None:
+        sessions = _sessions()
+        filt = SessionFilter(max_tokens=999_999_999)
+        result = apply_filters(sessions, filt)
+        assert len(result) == len(sessions)
+
+    def test_filter_by_max_tokens_excludes(self) -> None:
+        sessions = _sessions()
+        filt = SessionFilter(max_tokens=0)
+        result = apply_filters(sessions, filt)
+        assert len(result) == 0

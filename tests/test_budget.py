@@ -9,7 +9,17 @@ from unittest.mock import patch
 
 from click.testing import CliRunner
 
-from parsimony.budget import BudgetConfig, BudgetStatus, check_budget, load_budget
+from parsimony.budget import (
+    BudgetConfig,
+    BudgetStatus,
+    check_budget,
+    check_token_budget,
+    load_budget,
+    load_token_budget,
+    TIER_PRESETS,
+    TokenBudgetConfig,
+    TokenBudgetStatus,
+)
 from parsimony.cli import main
 from parsimony.models.session import Session
 from parsimony.parser.reader import read_events
@@ -166,3 +176,84 @@ class TestBudgetCLI:
         assert result.exit_code == 0
         assert "daily" in result.output
         assert "weekly" in result.output
+
+
+class TestTokenBudgetConfig:
+    def test_default_not_configured(self) -> None:
+        cfg = TokenBudgetConfig()
+        assert cfg.is_configured is False
+
+    def test_session_only(self) -> None:
+        cfg = TokenBudgetConfig(session_limit=88_000)
+        assert cfg.is_configured is True
+
+    def test_weekly_only(self) -> None:
+        cfg = TokenBudgetConfig(weekly_limit=45_000_000)
+        assert cfg.is_configured is True
+
+    def test_frozen(self) -> None:
+        cfg = TokenBudgetConfig()
+        try:
+            cfg.session_limit = 100  # type: ignore[misc]
+            raise AssertionError("Should not allow mutation")
+        except AttributeError:
+            pass
+
+
+class TestTokenBudgetStatus:
+    def test_under_limit(self) -> None:
+        status = check_token_budget(30_000, 88_000, "session")
+        assert status.over_limit is False
+        assert 0 < status.percentage < 100
+
+    def test_over_limit(self) -> None:
+        status = check_token_budget(100_000, 88_000, "session")
+        assert status.over_limit is True
+        assert status.percentage > 100
+
+    def test_zero_limit(self) -> None:
+        status = check_token_budget(1000, 0, "session")
+        assert status.percentage == 0.0
+
+    def test_exact_limit(self) -> None:
+        status = check_token_budget(88_000, 88_000, "session")
+        assert status.over_limit is False  # used == limit is NOT over
+
+
+class TestTierPresets:
+    def test_pro_preset(self) -> None:
+        assert TIER_PRESETS["pro"].session_limit == 44_000
+
+    def test_max5_preset(self) -> None:
+        assert TIER_PRESETS["max5"].session_limit == 88_000
+
+    def test_max20_preset(self) -> None:
+        assert TIER_PRESETS["max20"].session_limit == 220_000
+
+
+class TestLoadTokenBudget:
+    def test_no_file_no_tier(self, tmp_path: Path) -> None:
+        cfg = load_token_budget(config_path=tmp_path / "nonexistent.yaml")
+        assert cfg.is_configured is False
+
+    def test_tier_only(self, tmp_path: Path) -> None:
+        cfg = load_token_budget(config_path=tmp_path / "nonexistent.yaml", tier="max5")
+        assert cfg.session_limit == 88_000
+
+    def test_config_file_overrides_tier(self, tmp_path: Path) -> None:
+        config_file = tmp_path / "config.yaml"
+        config_file.write_text(dedent("""\
+            token_budget:
+              session_limit: 100000
+        """))
+        cfg = load_token_budget(config_path=config_file, tier="pro")
+        assert cfg.session_limit == 100000
+
+    def test_config_file_tier_key(self, tmp_path: Path) -> None:
+        config_file = tmp_path / "config.yaml"
+        config_file.write_text(dedent("""\
+            token_budget:
+              tier: max20
+        """))
+        cfg = load_token_budget(config_path=config_file)
+        assert cfg.session_limit == 220_000

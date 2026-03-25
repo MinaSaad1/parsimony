@@ -102,3 +102,41 @@ class TestComputeRollup:
 
         assert double.total_tokens == single.total_tokens * 2
         assert double.session_count == 2
+
+
+class TestRollupTokenFields:
+    def test_token_breakdown(self) -> None:
+        session = _make_session("simple_session.jsonl", "s1")
+        rollup = compute_rollup([session])
+        assert rollup.total_input_tokens >= 0
+        assert rollup.total_output_tokens >= 0
+        assert rollup.total_cache_write_tokens >= 0
+        assert rollup.total_cache_read_tokens >= 0
+        total = (
+            rollup.total_input_tokens
+            + rollup.total_output_tokens
+            + rollup.total_cache_write_tokens
+            + rollup.total_cache_read_tokens
+        )
+        assert total == rollup.total_tokens
+
+    def test_avg_tokens_per_session(self) -> None:
+        s1 = _make_session("simple_session.jsonl", "s1")
+        s2 = _make_session("multi_model_session.jsonl", "s2")
+        rollup = compute_rollup([s1, s2])
+        assert rollup.avg_tokens_per_session == rollup.total_tokens // 2
+
+    def test_highest_token_session(self) -> None:
+        s1 = _make_session("simple_session.jsonl", "s1")
+        s2 = _make_session("multi_model_session.jsonl", "s2")
+        rollup = compute_rollup([s1, s2])
+        assert rollup.highest_token_session is not None
+        assert rollup.highest_token_count > 0
+
+    def test_empty_rollup_token_fields(self) -> None:
+        rollup = compute_rollup([])
+        assert rollup.total_input_tokens == 0
+        assert rollup.total_output_tokens == 0
+        assert rollup.avg_tokens_per_session == 0
+        assert rollup.highest_token_session is None
+        assert rollup.highest_token_count == 0

@@ -7,12 +7,15 @@ from rich.table import Table
 from rich.text import Text
 
 from parsimony.aggregator.diff import DeltaValue, SessionDiff
+from parsimony.output.display_config import DisplayConfig
 from parsimony.output.formatters import (
     format_cost,
     format_model_name,
     format_percentage,
     format_tokens,
 )
+
+_DEFAULT_CONFIG = DisplayConfig()
 
 
 def _arrow(delta: DeltaValue) -> Text:
@@ -34,7 +37,10 @@ def _cost_arrow(delta: DeltaValue) -> Text:
     return Text("--", style="dim")
 
 
-def render_diff(diff: SessionDiff) -> Group:
+def render_diff(
+    diff: SessionDiff,
+    config: DisplayConfig = _DEFAULT_CONFIG,
+) -> Group:
     """Render a full side-by-side comparison of two sessions."""
     parts: list[Table | Text] = []
 
@@ -56,12 +62,7 @@ def render_diff(diff: SessionDiff) -> Group:
     table.add_column(diff.session_id_new[:8], justify="right")
     table.add_column("Change", justify="right")
 
-    table.add_row(
-        "Total Cost",
-        format_cost(diff.total_cost.old),
-        format_cost(diff.total_cost.new),
-        _cost_arrow(diff.total_cost),
-    )
+    # Tokens first
     table.add_row(
         "Total Tokens",
         format_tokens(int(diff.total_tokens.old)),
@@ -104,9 +105,18 @@ def render_diff(diff: SessionDiff) -> Group:
         str(int(diff.api_calls.new)),
         _arrow(diff.api_calls),
     )
+
+    # Cost row only when show_cost
+    if config.show_cost:
+        table.add_row(
+            "Total Cost",
+            format_cost(diff.total_cost.old),
+            format_cost(diff.total_cost.new),
+            _cost_arrow(diff.total_cost),
+        )
     parts.append(table)
 
-    # Per-model cost table (only if there are models)
+    # Per-model token table
     if diff.per_model_cost:
         model_table = Table(
             title="By Model",
@@ -118,17 +128,20 @@ def render_diff(diff: SessionDiff) -> Group:
         model_table.add_column(diff.session_id_new[:8], justify="right")
         model_table.add_column("Change", justify="right")
 
-        for model in sorted(
-            diff.per_model_cost, key=lambda m: diff.per_model_cost[m].new, reverse=True,
-        ):
-            dv = diff.per_model_cost[model]
-            model_table.add_row(
-                format_model_name(model),
-                format_cost(dv.old),
-                format_cost(dv.new),
-                _cost_arrow(dv),
-            )
-        parts.append(model_table)
+        if config.show_cost:
+            for model in sorted(
+                diff.per_model_cost,
+                key=lambda m: diff.per_model_cost[m].new,
+                reverse=True,
+            ):
+                dv = diff.per_model_cost[model]
+                model_table.add_row(
+                    format_model_name(model),
+                    format_cost(dv.old),
+                    format_cost(dv.new),
+                    _cost_arrow(dv),
+                )
+            parts.append(model_table)
 
     # Per-tool count table (top 10 by total)
     if diff.per_tool_count:

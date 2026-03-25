@@ -18,6 +18,8 @@ class SessionFilter:
 
     models: frozenset[str] | None = None
     tools: frozenset[str] | None = None
+    min_tokens: int | None = None
+    max_tokens: int | None = None
     min_cost: Decimal | None = None
     max_cost: Decimal | None = None
 
@@ -26,6 +28,8 @@ class SessionFilter:
         return (
             self.models is None
             and self.tools is None
+            and self.min_tokens is None
+            and self.max_tokens is None
             and self.min_cost is None
             and self.max_cost is None
         )
@@ -94,6 +98,12 @@ def apply_filters(
 
         # Tool filter: session must contain at least one matching tool call
         if filt.tools is not None and not _session_uses_tool(session, filt.tools):
+            continue
+
+        # Token filters use session.total_tokens directly
+        if filt.min_tokens is not None and session.total_tokens < filt.min_tokens:
+            continue
+        if filt.max_tokens is not None and session.total_tokens > filt.max_tokens:
             continue
 
         # Cost filters require pricing

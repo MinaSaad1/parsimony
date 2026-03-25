@@ -52,12 +52,19 @@ class SessionRollup:
 
     session_count: int
     total_tokens: int
+    total_input_tokens: int
+    total_output_tokens: int
+    total_cache_write_tokens: int
+    total_cache_read_tokens: int
     total_cost: Decimal
     per_model: dict[str, ModelRollup]
     per_tool: dict[str, ToolRollup]
     mcp_breakdown: dict[str, dict[str, int]]
     cache_efficiency: float
+    avg_tokens_per_session: int
     avg_cost_per_session: Decimal
+    highest_token_session: Session | None
+    highest_token_count: int
     most_expensive_session: Session | None
     most_expensive_cost: Decimal
     subagent_total_tokens: int
@@ -170,12 +177,15 @@ def compute_rollup(
     total_tokens = sum(mr.total_tokens for mr in per_model.values())
     total_cost = sum((mr.cost for mr in per_model.values()), Decimal("0")) + subagent_cost_total
 
-    # Cache efficiency
-    total_cache_read = sum(model_cache_read.values())
+    # Token breakdowns
     total_input = sum(model_input.values())
-    total_cache_write = sum(model_cache_write.values())
-    denominator = total_input + total_cache_read + total_cache_write
-    cache_efficiency = (total_cache_read / denominator * 100) if denominator > 0 else 0.0
+    total_output = sum(model_output.values())
+    total_cw = sum(model_cache_write.values())
+    total_cr = sum(model_cache_read.values())
+
+    # Cache efficiency
+    denominator = total_input + total_cr + total_cw
+    cache_efficiency = (total_cr / denominator * 100) if denominator > 0 else 0.0
 
     # Most expensive session
     most_expensive: Session | None = None
@@ -185,18 +195,35 @@ def compute_rollup(
             most_expensive = session
             most_expensive_cost_val = cost_val
 
-    # Avg cost
+    # Highest token session
+    highest_tok_session: Session | None = None
+    highest_tok_count = 0
+    for session in sessions:
+        st = session.total_tokens
+        if st > highest_tok_count:
+            highest_tok_session = session
+            highest_tok_count = st
+
+    # Averages
     avg_cost = total_cost / len(sessions) if sessions else Decimal("0")
+    avg_tokens = total_tokens // len(sessions) if sessions else 0
 
     return SessionRollup(
         session_count=len(sessions),
         total_tokens=total_tokens,
+        total_input_tokens=total_input,
+        total_output_tokens=total_output,
+        total_cache_write_tokens=total_cw,
+        total_cache_read_tokens=total_cr,
         total_cost=total_cost,
         per_model=per_model,
         per_tool=per_tool,
         mcp_breakdown=mcp_breakdown,
         cache_efficiency=cache_efficiency,
+        avg_tokens_per_session=avg_tokens,
         avg_cost_per_session=avg_cost,
+        highest_token_session=highest_tok_session,
+        highest_token_count=highest_tok_count,
         most_expensive_session=most_expensive,
         most_expensive_cost=most_expensive_cost_val,
         subagent_total_tokens=subagent_tokens,

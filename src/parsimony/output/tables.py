@@ -2,17 +2,16 @@
 
 from __future__ import annotations
 
-from decimal import Decimal
-
 from rich.console import Group
 from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
 
 from parsimony.aggregator.rollup import SessionRollup
-from parsimony.budget import BudgetStatus
+from parsimony.budget import BudgetStatus, TokenBudgetStatus
 from parsimony.models.cost import SessionCost
 from parsimony.models.session import Session
+from parsimony.output.display_config import DisplayConfig
 from parsimony.output.formatters import (
     format_cost,
     format_duration,
@@ -21,44 +20,67 @@ from parsimony.output.formatters import (
     format_tokens,
 )
 
+_DEFAULT_CONFIG = DisplayConfig()
 
-def render_summary(rollup: SessionRollup, label: str = "") -> Panel:
+
+def render_summary(
+    rollup: SessionRollup,
+    label: str = "",
+    config: DisplayConfig = _DEFAULT_CONFIG,
+) -> Panel:
     """Render a top-level summary panel."""
     title = f"Parsimony | {label}" if label else "Parsimony"
     text = Text()
-    text.append("  Total Cost:  ", style="dim")
-    text.append(format_cost(rollup.total_cost), style="bold green")
-    text.append("    Sessions: ", style="dim")
+    text.append("  Total Tokens: ", style="dim")
+    text.append(format_tokens(rollup.total_tokens), style="bold cyan")
+    text.append("  (", style="dim")
+    text.append(f"In: {format_tokens(rollup.total_input_tokens)}", style="dim")
+    text.append(f"  Out: {format_tokens(rollup.total_output_tokens)}", style="dim")
+    text.append(
+        f"  Cache: {format_tokens(rollup.total_cache_read_tokens)}", style="dim"
+    )
+    text.append(")", style="dim")
+
+    text.append("\n  Sessions: ", style="dim")
     text.append(str(rollup.session_count), style="bold cyan")
     text.append("    API Calls: ", style="dim")
-
     total_calls = sum(mr.call_count for mr in rollup.per_model.values())
     text.append(str(total_calls), style="bold cyan")
+
+    if config.show_cost:
+        text.append("    Cost: ", style="dim")
+        text.append(format_cost(rollup.total_cost), style="bold green")
 
     return Panel(text, title=title, border_style="bright_blue")
 
 
-def render_model_breakdown(rollup: SessionRollup) -> Table:
-    """Render per-model cost breakdown."""
+def render_model_breakdown(
+    rollup: SessionRollup,
+    config: DisplayConfig = _DEFAULT_CONFIG,
+) -> Table:
+    """Render per-model token breakdown."""
     table = Table(title="By Model", show_header=True, header_style="bold magenta")
     table.add_column("Model", style="cyan", min_width=18)
-    table.add_column("Tokens", justify="right")
-    table.add_column("Cost", justify="right", style="green")
+    table.add_column("Tokens", justify="right", style="bold cyan")
     table.add_column("Share", justify="right")
+    if config.show_cost:
+        table.add_column("Cost", justify="right", style="green")
 
-    total = rollup.total_cost if rollup.total_cost > 0 else Decimal("1")
+    total = rollup.total_tokens if rollup.total_tokens > 0 else 1
     sorted_models = sorted(
-        rollup.per_model.values(), key=lambda m: m.cost, reverse=True
+        rollup.per_model.values(), key=lambda m: m.total_tokens, reverse=True
     )
 
     for mr in sorted_models:
-        share = float(mr.cost / total * 100) if rollup.total_cost > 0 else 0
-        table.add_row(
+        share = mr.total_tokens / total * 100 if rollup.total_tokens > 0 else 0
+        row = [
             format_model_name(mr.model),
             format_tokens(mr.total_tokens),
-            format_cost(mr.cost),
             format_percentage(share),
-        )
+        ]
+        if config.show_cost:
+            row.append(format_cost(mr.cost))
+        table.add_row(*row)
 
     return table
 
@@ -98,18 +120,21 @@ def render_mcp_breakdown(rollup: SessionRollup) -> Table:
 def render_session_list(
     sessions_with_costs: list[tuple[Session, SessionCost]],
     limit: int = 10,
+    config: DisplayConfig = _DEFAULT_CONFIG,
 ) -> Table:
-    """Render a list of sessions with their costs."""
+    """Render a list of sessions sorted by token usage."""
     table = Table(title="Sessions", show_header=True, header_style="bold magenta")
     table.add_column("Time", style="dim", min_width=8)
     table.add_column("Duration", justify="right")
     table.add_column("Project", style="cyan", min_width=18)
     table.add_column("Model(s)", min_width=10)
-    table.add_column("Cost", justify="right", style="green")
+    table.add_column("Tokens", justify="right", style="bold cyan")
+    if config.show_cost:
+        table.add_column("Cost", justify="right", style="green")
 
     sorted_sessions = sorted(
         sessions_with_costs,
-        key=lambda sc: sc[1].total,
+        key=lambda sc: sc[0].total_tokens,
         reverse=True,
     )
 
@@ -127,18 +152,25 @@ def render_session_list(
         else:
             model_str = "-"
 
-        table.add_row(
+        row = [
             time_str,
             format_duration(session.duration),
             session.project_name,
             model_str,
-            format_cost(cost.total),
-        )
+            format_tokens(session.total_tokens),
+        ]
+        if config.show_cost:
+            row.append(format_cost(cost.total))
+        table.add_row(*row)
 
     return table
 
 
-def render_session_detail(session: Session, session_cost: SessionCost) -> Group:
+def render_session_detail(
+    session: Session,
+    session_cost: SessionCost,
+    config: DisplayConfig = _DEFAULT_CONFIG,
+) -> Group:
     """Render a full drill-down for a single session."""
     parts: list[Table | Panel | Text] = []
 
@@ -152,19 +184,22 @@ def render_session_detail(session: Session, session_cost: SessionCost) -> Group:
         header.append(f" ({format_duration(session.duration)})", style="dim")
     parts.append(Panel(header, border_style="bright_blue"))
 
-    # Cost summary
-    cost_text = Text()
-    cost_text.append(f"  Total: {format_cost(session_cost.total)}", style="bold green")
-    cost_text.append(
+    # Token summary (primary)
+    token_text = Text()
+    token_text.append(
+        f"  Total Tokens: {format_tokens(session.total_tokens)}", style="bold cyan"
+    )
+    token_text.append(
         f"  |  API Calls: {session.total_api_calls}  |  Models: ", style="dim"
     )
     model_parts = []
     for seg in session.segments:
-        model_parts.append(
-            f"{format_model_name(seg.model)}({seg.call_count})"
-        )
-    cost_text.append(", ".join(model_parts), style="cyan")
-    parts.append(cost_text)
+        model_parts.append(f"{format_model_name(seg.model)}({seg.call_count})")
+    token_text.append(", ".join(model_parts), style="cyan")
+
+    if config.show_cost:
+        token_text.append(f"\n  Cost: {format_cost(session_cost.total)}", style="green")
+    parts.append(token_text)
 
     # Model segments table
     seg_table = Table(
@@ -296,8 +331,42 @@ def render_budget_warning(statuses: list[BudgetStatus]) -> Panel | None:
     return Panel(combined, title="Budget", border_style=border)
 
 
+def _build_progress_bar(percentage: float, width: int = 16) -> str:
+    filled = int(percentage / 100 * width)
+    filled = min(filled, width)
+    return "=" * filled + "." * (width - filled)
+
+
+def render_token_budget_warning(statuses: list[TokenBudgetStatus]) -> Panel | None:
+    if not statuses:
+        return None
+
+    lines: list[Text] = []
+    for s in statuses:
+        if s.percentage >= 90:
+            color = "red"
+        elif s.percentage >= 70:
+            color = "yellow"
+        else:
+            color = "green"
+
+        bar = _build_progress_bar(s.percentage)
+        line = Text()
+        line.append(f"  {s.scope.capitalize()}: ", style="dim")
+        line.append(format_tokens(s.used), style=f"bold {color}")
+        line.append(f" / {format_tokens(s.limit)}", style="dim")
+        line.append(f" [{bar}] ", style=color)
+        line.append(format_percentage(s.percentage), style=f"bold {color}")
+        lines.append(line)
+
+    combined = Text("\n").join(lines)
+    border = "red" if any(s.over_limit for s in statuses) else "yellow"
+    return Panel(combined, title="Token Budget", border_style=border)
+
+
 def render_comparison(
     labeled_rollups: list[tuple[str, SessionRollup]],
+    config: DisplayConfig = _DEFAULT_CONFIG,
 ) -> Table:
     """Render a side-by-side comparison of multiple time periods."""
     table = Table(title="Comparison", show_header=True, header_style="bold magenta")
@@ -306,23 +375,28 @@ def render_comparison(
     for label, _ in labeled_rollups:
         table.add_column(label, justify="right")
 
-    # Rows
+    # Rows: tokens first
     table.add_row(
         "Sessions",
         *[str(r.session_count) for _, r in labeled_rollups],
-    )
-    table.add_row(
-        "Total Cost",
-        *[format_cost(r.total_cost) for _, r in labeled_rollups],
     )
     table.add_row(
         "Total Tokens",
         *[format_tokens(r.total_tokens) for _, r in labeled_rollups],
     )
     table.add_row(
-        "Avg/Session",
-        *[format_cost(r.avg_cost_per_session) for _, r in labeled_rollups],
+        "Avg Tokens/Session",
+        *[format_tokens(r.avg_tokens_per_session) for _, r in labeled_rollups],
     )
+    if config.show_cost:
+        table.add_row(
+            "Total Cost",
+            *[format_cost(r.total_cost) for _, r in labeled_rollups],
+        )
+        table.add_row(
+            "Avg Cost/Session",
+            *[format_cost(r.avg_cost_per_session) for _, r in labeled_rollups],
+        )
     table.add_row(
         "Cache Efficiency",
         *[format_percentage(r.cache_efficiency) for _, r in labeled_rollups],

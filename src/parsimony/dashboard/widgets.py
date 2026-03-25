@@ -8,6 +8,7 @@ from textual.widgets import DataTable, Static
 from parsimony.aggregator.rollup import SessionRollup
 from parsimony.models.cost import SessionCost
 from parsimony.models.session import Session
+from parsimony.output.display_config import DisplayConfig
 from parsimony.output.formatters import (
     format_cost,
     format_duration,
@@ -17,6 +18,7 @@ from parsimony.output.formatters import (
 )
 
 _BAR_CHARS = " ▏▎▍▌▋▊▉█"
+_DEFAULT_CONFIG = DisplayConfig()
 
 
 def _bar(value: float, max_value: float, width: int = 15) -> str:
@@ -33,43 +35,61 @@ def _bar(value: float, max_value: float, width: int = 15) -> str:
     return bar
 
 
-class CostHeader(Static):
-    """Top-level cost summary bar."""
+class UsageHeader(Static):
+    """Top-level token usage summary bar."""
 
-    def update_data(self, rollup: SessionRollup, direction: str = "stable") -> None:
+    def update_data(
+        self,
+        rollup: SessionRollup,
+        direction: str = "stable",
+        config: DisplayConfig = _DEFAULT_CONFIG,
+    ) -> None:
         arrows = {"rising": "↑", "falling": "↓", "stable": "→"}
         arrow = arrows.get(direction, "→")
-        self.update(
-            f"  Total: {format_cost(rollup.total_cost)}  "
-            f"Sessions: {rollup.session_count}  "
-            f"Trend: {arrow} {direction}  "
-            f"Cache: {format_percentage(rollup.cache_efficiency)}"
-        )
+        parts = [
+            f"  Tokens: {format_tokens(rollup.total_tokens)}  ",
+            f"Sessions: {rollup.session_count}  ",
+            f"Trend: {arrow} {direction}  ",
+            f"Cache: {format_percentage(rollup.cache_efficiency)}",
+        ]
+        if config.show_cost:
+            parts.append(f"  Cost: {format_cost(rollup.total_cost)}")
+        self.update("".join(parts))
 
 
 class ModelBreakdown(Static):
-    """Per-model cost breakdown with horizontal bars."""
+    """Per-model token breakdown with horizontal bars."""
 
-    def update_data(self, rollup: SessionRollup) -> None:
+    def update_data(
+        self,
+        rollup: SessionRollup,
+        config: DisplayConfig = _DEFAULT_CONFIG,
+    ) -> None:
         if not rollup.per_model:
             self.update("  No model data")
             return
 
-        max_cost = float(max(mr.cost for mr in rollup.per_model.values()))
-        if max_cost <= 0:
-            max_cost = 1.0
+        max_tokens = float(
+            max(mr.total_tokens for mr in rollup.per_model.values())
+        )
+        if max_tokens <= 0:
+            max_tokens = 1.0
 
         lines: list[str] = []
         sorted_models = sorted(
-            rollup.per_model.values(), key=lambda m: m.cost, reverse=True,
+            rollup.per_model.values(),
+            key=lambda m: m.total_tokens,
+            reverse=True,
         )
         for mr in sorted_models:
-            bar = _bar(float(mr.cost), max_cost)
+            bar = _bar(float(mr.total_tokens), max_tokens)
             name = format_model_name(mr.model)
-            lines.append(
-                f"  {name:<14} {bar}  {format_cost(mr.cost)}  "
-                f"({format_tokens(mr.total_tokens)})"
+            line = (
+                f"  {name:<14} {bar}  {format_tokens(mr.total_tokens)}"
             )
+            if config.show_cost:
+                line += f"  ({format_cost(mr.cost)})"
+            lines.append(line)
         self.update("\n".join(lines))
 
 
@@ -102,8 +122,24 @@ class CacheGauge(Static):
         self.update(f"  Hit Rate: {bar}  {format_percentage(efficiency)}")
 
 
+class UsageGauge(Static):
+    """Weekly token usage progress bar."""
+
+    def update_data(self, used: int, limit: int) -> None:
+        from parsimony.output.gauges import render_usage_gauge
+        self.update(render_usage_gauge(used, limit, "Weekly"))
+
+
+class SessionPeakGauge(Static):
+    """Highest single-session token count vs limit."""
+
+    def update_data(self, peak: int, limit: int) -> None:
+        from parsimony.output.gauges import render_usage_gauge
+        self.update(render_usage_gauge(peak, limit, "Session Peak"))
+
+
 class SessionLog(DataTable):  # type: ignore[type-arg, misc]
-    """Scrollable session list sorted by cost."""
+    """Scrollable session list sorted by token usage."""
 
     _initialized: bool = False
 
@@ -111,7 +147,7 @@ class SessionLog(DataTable):  # type: ignore[type-arg, misc]
         yield from super().compose()
 
     def on_mount(self) -> None:
-        self.add_columns("Time", "Duration", "Project", "Model", "Cost")
+        self.add_columns("Time", "Duration", "Project", "Model", "Tokens")
         self._initialized = True
 
     def update_data(
@@ -123,9 +159,11 @@ class SessionLog(DataTable):  # type: ignore[type-arg, misc]
             return
         self.clear()
         sorted_sessions = sorted(
-            sessions_with_costs, key=lambda sc: sc[1].total, reverse=True,
+            sessions_with_costs,
+            key=lambda sc: sc[0].total_tokens,
+            reverse=True,
         )
-        for session, cost in sorted_sessions[:limit]:
+        for session, _cost in sorted_sessions[:limit]:
             time_str = (
                 session.start_time.astimezone().strftime("%H:%M")
                 if session.start_time
@@ -143,5 +181,5 @@ class SessionLog(DataTable):  # type: ignore[type-arg, misc]
                 format_duration(session.duration),
                 session.project_name[:20],
                 model_str,
-                format_cost(cost.total),
+                format_tokens(session.total_tokens),
             )

@@ -99,6 +99,41 @@ def moving_average(
     return result
 
 
+def moving_average_tokens(
+    trends: list[DailyTrend],
+    window: int = 7,
+) -> list[int]:
+    result: list[int] = []
+    for i in range(len(trends)):
+        start = max(0, i - window + 1)
+        window_slice = trends[start:i + 1]
+        total = sum(t.tokens for t in window_slice)
+        result.append(total // len(window_slice))
+    return result
+
+
+def trend_direction_tokens(trends: list[DailyTrend], window: int = 7) -> str:
+    if len(trends) < window * 2:
+        return "stable"
+
+    recent = trends[-window:]
+    previous = trends[-window * 2:-window]
+
+    recent_avg = sum(t.tokens for t in recent) / len(recent)
+    prev_avg = sum(t.tokens for t in previous) / len(previous)
+
+    if prev_avg == 0:
+        return "rising" if recent_avg > 0 else "stable"
+
+    change_pct = (recent_avg - prev_avg) / prev_avg * 100
+
+    if change_pct > 10:
+        return "rising"
+    if change_pct < -10:
+        return "falling"
+    return "stable"
+
+
 def trend_direction(trends: list[DailyTrend], window: int = 7) -> str:
     """Determine whether costs are rising, falling, or stable.
 

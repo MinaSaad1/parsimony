@@ -113,3 +113,85 @@ def _to_decimal(value: Any) -> Decimal | None:
         return Decimal(str(value))
     except Exception:
         return None
+
+
+@dataclass(frozen=True)
+class TokenBudgetConfig:
+    session_limit: int | None = None
+    weekly_limit: int | None = None
+
+    @property
+    def is_configured(self) -> bool:
+        return self.session_limit is not None or self.weekly_limit is not None
+
+
+@dataclass(frozen=True)
+class TokenBudgetStatus:
+    scope: str
+    used: int
+    limit: int
+
+    @property
+    def over_limit(self) -> bool:
+        return self.used > self.limit
+
+    @property
+    def percentage(self) -> float:
+        return (self.used / self.limit * 100) if self.limit > 0 else 0.0
+
+
+TIER_PRESETS: dict[str, TokenBudgetConfig] = {
+    "pro": TokenBudgetConfig(session_limit=44_000, weekly_limit=None),
+    "max5": TokenBudgetConfig(session_limit=88_000, weekly_limit=None),
+    "max20": TokenBudgetConfig(session_limit=220_000, weekly_limit=None),
+}
+
+
+def check_token_budget(used: int, limit: int, scope: str) -> TokenBudgetStatus:
+    return TokenBudgetStatus(scope=scope, used=used, limit=limit)
+
+
+def load_token_budget(
+    config_path: Path | None = None,
+    tier: str | None = None,
+) -> TokenBudgetConfig:
+    base = (
+        TIER_PRESETS[tier]
+        if tier and tier in TIER_PRESETS
+        else TokenBudgetConfig()
+    )
+
+    if config_path is None:
+        config_path = Path("~/.parsimony/config.yaml").expanduser()
+
+    if not config_path.is_file():
+        return base
+
+    try:
+        with config_path.open(encoding="utf-8") as f:
+            data: dict[str, Any] = yaml.safe_load(f) or {}
+    except Exception:
+        logger.warning("Failed to parse config file: %s", config_path)
+        return base
+
+    tb = data.get("token_budget")
+    if not isinstance(tb, dict):
+        return base
+
+    file_tier = tb.get("tier")
+    if isinstance(file_tier, str) and file_tier in TIER_PRESETS and tier is None:
+        base = TIER_PRESETS[file_tier]
+
+    session_limit = _to_int(tb.get("session_limit")) or base.session_limit
+    weekly_limit = _to_int(tb.get("weekly_limit")) or base.weekly_limit
+
+    return TokenBudgetConfig(session_limit=session_limit, weekly_limit=weekly_limit)
+
+
+def _to_int(value: Any) -> int | None:
+    if value is None:
+        return None
+    try:
+        return int(value)
+    except Exception:
+        return None

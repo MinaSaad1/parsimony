@@ -68,6 +68,10 @@ addopts = "--cov=parsimony --cov-report=term-missing"
 strict = true
 python_version = "3.11"
 
+[[tool.mypy.overrides]]
+module = ["textual.*", "watchfiles.*"]
+ignore_missing_imports = true
+
 [tool.coverage.run]
 source = ["parsimony"]
 

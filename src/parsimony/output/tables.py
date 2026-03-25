@@ -10,6 +10,7 @@ from rich.table import Table
 from rich.text import Text
 
 from parsimony.aggregator.rollup import SessionRollup
+from parsimony.budget import BudgetStatus
 from parsimony.models.cost import SessionCost
 from parsimony.models.session import Session
 from parsimony.output.formatters import (
@@ -253,6 +254,46 @@ def render_session_detail(session: Session, session_cost: SessionCost) -> Group:
     parts.append(cache_text)
 
     return Group(*parts)
+
+
+def render_budget_warning(statuses: list[BudgetStatus]) -> Panel | None:
+    """Render a budget warning panel for any periods that are near or over limit.
+
+    Returns ``None`` if no statuses warrant a warning (all under 70%).
+    """
+    lines: list[Text] = []
+    for s in statuses:
+        if s.over_budget:
+            line = Text()
+            line.append("  OVER BUDGET ", style="bold red")
+            line.append(f"({s.period}): ", style="red")
+            line.append(f"{format_cost(s.spent)}", style="bold red")
+            line.append(f" / {format_cost(s.limit)}", style="dim")
+            line.append(f"  ({format_percentage(s.percentage)})", style="red")
+            lines.append(line)
+        elif s.percentage >= 90:
+            line = Text()
+            line.append("  WARNING ", style="bold yellow")
+            line.append(f"({s.period}): ", style="yellow")
+            line.append(f"{format_cost(s.spent)}", style="bold yellow")
+            line.append(f" / {format_cost(s.limit)}", style="dim")
+            line.append(f"  ({format_percentage(s.percentage)})", style="yellow")
+            lines.append(line)
+        elif s.percentage >= 70:
+            line = Text()
+            line.append("  NOTICE ", style="bold blue")
+            line.append(f"({s.period}): ", style="blue")
+            line.append(f"{format_cost(s.spent)}", style="bold blue")
+            line.append(f" / {format_cost(s.limit)}", style="dim")
+            line.append(f"  ({format_percentage(s.percentage)})", style="blue")
+            lines.append(line)
+
+    if not lines:
+        return None
+
+    combined = Text("\n").join(lines)
+    border = "red" if any(s.over_budget for s in statuses) else "yellow"
+    return Panel(combined, title="Budget", border_style=border)
 
 
 def render_comparison(

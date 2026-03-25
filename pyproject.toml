@@ -38,6 +38,10 @@ Changelog = "https://github.com/MinaSaad1/parsimony/releases"
 parsimony = "parsimony.cli:main"
 
 [project.optional-dependencies]
+dashboard = [
+    "textual>=0.50",
+    "watchfiles>=0.21",
+]
 dev = [
     "pytest>=8.0",
     "pytest-cov>=5.0",

@@ -10,7 +10,7 @@ readme = "README.md"
 license = "MIT"
 requires-python = ">=3.11"
 authors = [{name = "Mina Saad"}]
-keywords = ["claude", "claude-code", "tokens", "cost", "observability", "cli"]
+keywords = ["claude", "claude-code", "tokens", "usage", "observability", "cli", "subscription"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Environment :: Console",

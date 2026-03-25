@@ -1,19 +1,10 @@
 <div align="center">
 
-```
- ██████╗  █████╗ ██████╗ ███████╗██╗███╗   ███╗ ██████╗ ███╗   ██╗██╗   ██╗
- ██╔══██╗██╔══██╗██╔══██╗██╔════╝██║████╗ ████║██╔═══██╗████╗  ██║╚██╗ ██╔╝
- ██████╔╝███████║██████╔╝███████╗██║██╔████╔██║██║   ██║██╔██╗ ██║ ╚████╔╝
- ██╔═══╝ ██╔══██║██╔══██╗╚════██║██║██║╚██╔╝██║██║   ██║██║╚██╗██║  ╚██╔╝
- ██║     ██║  ██║██║  ██║███████║██║██║ ╚═╝ ██║╚██████╔╝██║ ╚████║   ██║
- ╚═╝     ╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝╚═╝╚═╝     ╚═╝ ╚═════╝ ╚═╝  ╚═══╝   ╚═╝
-```
+<picture>
+  <img alt="Parsimony" src="assets/banner.svg" width="750">
+</picture>
 
 </div>
-
-<p align="center">
-  <strong>Token usage and cost observability for Claude Code</strong>
-</p>
 
 <p align="center">
   <a href="https://pypi.org/project/parsimony-cli/"><img src="https://img.shields.io/pypi/v/parsimony-cli?color=blue" alt="PyPI"></a>

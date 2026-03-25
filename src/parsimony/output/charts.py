@@ -240,7 +240,7 @@ def render_trend_chart(
             if metric == "tokens":
                 text.append(f"  (avg {format_tokens(int(ma[i]))})", style="dim")
             else:
-                text.append(f"  (avg {format_cost(ma[i])})", style="dim")
+                text.append(f"  (avg {format_cost(Decimal(ma[i]))})", style="dim")
         if i < len(trends) - 1:
             text.append("\n")
 

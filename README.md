@@ -1,8 +1,27 @@
-# Parsimony
+```
 
-**Know where every token goes.**
+    ____                   _
+   / __ \____ ___________(_)___ ___  ____  ____  __  __
+  / /_/ / __ `/ ___/ ___/ / __ `__ \/ __ \/ __ \/ / / /
+ / ____/ /_/ / /  (__  ) / / / / / / /_/ / / / / /_/ /
+/_/    \__,_/_/  /____/_/_/ /_/ /_/\____/_/ /_/\__, /
+                                              /____/
 
-Parsimony is a CLI tool that reads Claude Code's local session files and shows you exactly where your tokens and money are spent. Per API call, per tool, per MCP server, per subagent, with full model segment tracking.
+         Know where every token goes.
+```
+
+<p align="center">
+  <strong>Token usage and cost observability for Claude Code</strong>
+</p>
+
+<p align="center">
+  <a href="https://pypi.org/project/parsimony-cli/"><img src="https://img.shields.io/pypi/v/parsimony-cli?color=blue" alt="PyPI"></a>
+  <a href="https://pypi.org/project/parsimony-cli/"><img src="https://img.shields.io/pypi/pyversions/parsimony-cli" alt="Python"></a>
+  <a href="https://github.com/MinaSaad1/parsimony/blob/main/LICENSE"><img src="https://img.shields.io/github/license/MinaSaad1/parsimony" alt="License"></a>
+  <a href="https://github.com/MinaSaad1/parsimony/actions"><img src="https://img.shields.io/github/actions/workflow/status/MinaSaad1/parsimony/ci.yml?branch=main" alt="CI"></a>
+</p>
+
+---
 
 ## The Problem
 
@@ -14,211 +33,219 @@ You use Claude Code daily. The Anthropic dashboard shows a total bill, but you h
 - How does Opus vs Sonnet usage compare?
 - What did that one heavy session actually cost?
 
-Parsimony answers all of these. No API keys needed. It reads the JSONL files Claude Code already saves on your machine.
-
----
-
-## Prerequisites
-
-- **Python 3.11 or higher**
-- **Claude Code** installed and used (it creates session files at `~/.claude/projects/`)
-
-To verify you have session data:
-
-```bash
-# Check if Claude Code session files exist
-ls ~/.claude/projects/
-```
-
-You should see directories with names like `e--Coding-Projects-MyApp`. Each contains `.jsonl` session files.
+**Parsimony answers all of these.** No API keys needed. It reads the JSONL files Claude Code already saves on your machine.
 
 ---
 
 ## Installation
 
-### Option 1: Install from GitHub (current)
-
-```bash
-# Clone the repository
-git clone https://github.com/MinaSaad1/parsimony.git
-cd parsimony
-
-# Install
-pip install .
-
-# Or install in editable mode for development
-pip install -e .
-```
-
-### Option 2: Install from PyPI (coming soon)
-
 ```bash
 pip install parsimony-cli
-
-# Or with pipx (isolated install, recommended for CLI tools)
-pipx install parsimony-cli
-
-# Or with uv
-uv tool install parsimony-cli
 ```
 
-### Verify installation
+That's it. Requires **Python 3.11+** and **Claude Code** session data at `~/.claude/projects/`.
+
+Other install methods:
+
+```bash
+pipx install parsimony-cli    # isolated install
+uv tool install parsimony-cli  # with uv
+```
+
+Verify it works:
 
 ```bash
 parsimony --help
 ```
 
-You should see:
-
-```
-Usage: parsimony [OPTIONS] COMMAND [ARGS]...
-
-  Parsimony: Know where every token goes.
-
-Options:
-  -p, --project TEXT   Filter by project name (substring match).
-  --export [json|csv]  Export report as JSON or CSV.
-  --no-cache           Disable session cache.
-  -v, --verbose        Enable verbose logging.
-  --help               Show this message and exit.
-
-Commands:
-  compare    Compare usage across multiple time periods side-by-side.
-  month      Show monthly usage report.
-  session    Show detailed breakdown for a specific session.
-  today      Show today's usage report.
-  top        Show top items by a given dimension.
-  week       Show weekly usage report.
-  yesterday  Show yesterday's usage report.
-```
-
-If `parsimony` is not found in your PATH, use `python -m parsimony` instead.
+> If `parsimony` is not in your PATH, use `python -m parsimony` instead.
 
 ---
 
-## Usage
-
-### Daily Reports
+## Quick Start
 
 ```bash
-# Today's usage (also the default when you just run `parsimony`)
-parsimony today
-
-# Yesterday
-parsimony yesterday
+parsimony              # today's summary (default)
+parsimony yesterday    # yesterday's report
+parsimony week         # this week
+parsimony week --last  # last week
+parsimony month        # this month
+parsimony month 2026-03  # specific month
 ```
 
-Shows: total cost, session count, API calls, per-model breakdown with cost share, tool usage, MCP server activity, and cache efficiency.
+---
 
-### Weekly and Monthly Reports
+## Architecture
+
+```
+                     ~/.claude/projects/
+                            |
+                    +-------+-------+
+                    |               |
+              project-a/       project-b/
+              session1.jsonl   session3.jsonl
+              session2.jsonl
+                    |
+                    v
+    +=======================================+
+    |           P A R S I M O N Y           |
+    +=======================================+
+    |                                       |
+    |   +----------+     +-------------+    |
+    |   |  Scanner |---->|   Reader    |    |
+    |   | discover |     | stream JSONL|    |
+    |   +----------+     +------+------+    |
+    |                           |           |
+    |                           v           |
+    |                  +-----------------+  |
+    |                  |Session Builder  |  |
+    |                  | dedup requests  |  |
+    |                  | detect models   |  |
+    |                  | extract tools   |  |
+    |                  +--------+--------+  |
+    |                           |           |
+    |            +--------------+---------+ |
+    |            |              |         | |
+    |            v              v         v |
+    |      +---------+   +--------+ +------+
+    |      |  Cost   |   | Group  | |Rollup|
+    |      | Engine  |   |  By    | |      |
+    |      | Decimal |   |model   | |      |
+    |      |precision|   |tool    | |      |
+    |      +---------+   |project | |      |
+    |            |        |day    | |      |
+    |            |        +--------+ +------+
+    |            |              |         | |
+    |            +--------------+---------+ |
+    |                           |           |
+    |                           v           |
+    |   +----------+   +---------------+    |
+    |   |  Cache   |   |    Output     |    |
+    |   | SQLite   |   | tables/charts |    |
+    |   +----------+   | JSON/CSV      |    |
+    |                  +---------------+    |
+    +=======================================+
+                        |
+                        v
+              Terminal / Export File
+```
+
+### Data Flow
+
+```
+  JSONL Events          Parsed Session           Rollup
+  +-----------+        +---------------+       +----------+
+  |user       |  parse |session_id     | cost  |total_cost|
+  |assistant  |------->|segments[]     |------>|per_model |
+  |tool_use   |  dedup |  model        | calc  |per_tool  |
+  |tool_result|  merge |  calls[]      |       |per_mcp   |
+  +-----------+        |    usage      |       |cache_eff |
+                       |    tools[]    |       |top_sess  |
+                       |subagents[]   |       +----------+
+                       +---------------+
+```
+
+### Module Map
+
+```
+src/parsimony/
+  |
+  +-- parser/
+  |     events.py           # Frozen dataclasses for JSONL event types
+  |     scanner.py          # Filesystem discovery of session files
+  |     reader.py           # Streaming JSONL line-by-line reader
+  |     session_builder.py  # RequestId dedup, model segment detection
+  |
+  +-- models/
+  |     session.py          # Domain model with computed properties
+  |     cost.py             # Decimal-precision cost calculation engine
+  |     tool_usage.py       # MCP tool name parsing (mcp__server__tool)
+  |
+  +-- aggregator/
+  |     time_range.py       # Today/week/month/custom time windows
+  |     grouper.py          # Group by model, tool, project, day
+  |     rollup.py           # Full metric aggregation
+  |
+  +-- output/
+  |     formatters.py       # Human-friendly numbers ($1.23, 1.2M, 5m 30s)
+  |     tables.py           # Rich tables for every report type
+  |     charts.py           # Bar charts, cache gauge
+  |     export.py           # JSON and CSV export
+  |
+  +-- cache/
+  |     store.py            # SQLite cache (avoid re-parsing unchanged files)
+  |
+  +-- cli.py                # Click command group (entry point)
+  +-- config.py             # Pricing loader and path helpers
+```
+
+---
+
+## Commands
+
+### Reports
 
 ```bash
-# Current week
-parsimony week
-
-# Last week
-parsimony week --last
-
-# Current month
-parsimony month
-
-# A specific month
-parsimony month 2026-03
+parsimony today              # today's full report
+parsimony yesterday          # yesterday's report
+parsimony week               # current week
+parsimony week --last        # previous week
+parsimony month              # current month
+parsimony month 2026-03      # specific month
 ```
 
-Weekly/monthly reports include a daily cost trend chart and a full session list sorted by cost.
+Each report shows: total cost, session count, per-model breakdown with cost share, tool usage, MCP servers, daily cost trend, cache efficiency, and a session list sorted by cost.
 
 ### Session Drill-Down
 
-Every session has a UUID. You can see them in the session list, or look at filenames in `~/.claude/projects/`.
-
 ```bash
-# Full session ID
-parsimony session a1b2c3d4-5678-9abc-def0-1234567890ab
-
-# Or just a prefix (minimum 8 chars)
-parsimony session a1b2c3d4
+parsimony session a1b2c3d4                              # prefix match
+parsimony session a1b2c3d4-5678-9abc-def0-1234567890ab  # full UUID
 ```
 
-Shows for that single session:
-- Total cost
-- Each model segment (when you switched between Sonnet/Opus/Haiku)
+Shows for one session:
+- Total cost and duration
+- Model segments (Sonnet/Opus/Haiku switches)
 - Per-segment token counts (input, output, cache write, cache read)
-- Every tool used and how many times
-- Subagent details (tokens, tool count, duration)
-- Cache efficiency percentage
+- Tool breakdown with call counts
+- Subagent details
+- Cache efficiency
 
-### Top Rankings
-
-```bash
-# Most expensive sessions this week
-parsimony top sessions --period week
-
-# Cost by model this month
-parsimony top models --period month
-
-# Most used tools (all time)
-parsimony top tools --period all
-
-# Cost by project this week
-parsimony top projects --period week
-
-# Show top 20 instead of default 10
-parsimony top sessions --period month -n 20
-```
-
-Period options: `day`, `week`, `month`, `all`
-
-### Compare Time Periods
+### Rankings
 
 ```bash
-# Compare last 4 weeks side by side
-parsimony compare --period week --last 4
-
-# Compare last 3 months
-parsimony compare --period month --last 3
-
-# Compare last 7 days
-parsimony compare --period day --last 7
+parsimony top sessions --period week     # most expensive sessions
+parsimony top models   --period month    # cost by model
+parsimony top tools    --period all      # most used tools
+parsimony top projects --period week     # cost by project
+parsimony top sessions -n 20            # show top 20
 ```
 
-Shows sessions, total cost, total tokens, average cost per session, and cache efficiency for each period in columns.
-
-### Filter by Project
+### Compare Periods
 
 ```bash
-# Only show sessions from a specific project (substring match)
-parsimony -p myproject week
-parsimony -p "Coding Projects" month
+parsimony compare --period week  --last 4   # last 4 weeks side-by-side
+parsimony compare --period month --last 3   # last 3 months
+parsimony compare --period day   --last 7   # last 7 days
 ```
 
-### Export Data
+### Filters and Export
 
 ```bash
-# Export as JSON
-parsimony --export json month 2026-03 > march-report.json
-
-# Export as CSV (per-model breakdown)
-parsimony --export csv week > weekly-models.csv
-
-# Export a session comparison
-parsimony --export json compare --period week --last 4 > comparison.json
+parsimony -p myproject week                          # filter by project
+parsimony --export json month 2026-03 > report.json  # JSON export
+parsimony --export csv week > models.csv             # CSV export
+parsimony --no-cache today                           # skip cache
+parsimony -v today                                   # verbose logging
 ```
-
-JSON export includes: session count, total tokens, total cost, per-model breakdown (tokens + cost), per-tool breakdown, and MCP server usage.
 
 ---
 
-## Customizing Pricing
+## Pricing
 
-Parsimony ships with current Claude model pricing baked in. When Anthropic changes prices, or if you want to track custom rates, create a pricing override file:
+Parsimony ships with built-in Claude pricing. Override it at `~/.parsimony/pricing.yaml`:
 
-```bash
-# Create the config directory
-mkdir -p ~/.parsimony
-
-# Create your pricing file
-cat > ~/.parsimony/pricing.yaml << 'EOF'
+```yaml
 models:
   claude-opus-4-6:
     input_per_million: 15.00
@@ -235,65 +262,55 @@ models:
     output_per_million: 4.00
     cache_write_per_million: 1.00
     cache_read_per_million: 0.08
-EOF
 ```
 
-Models not listed in the pricing file fall back to Sonnet pricing (with a warning when `--verbose` is enabled).
-
----
-
-## Caching
-
-Parsimony caches parsed session data in a SQLite database at `~/.parsimony/cache.db`. This makes repeated queries much faster since session files only need to be parsed once.
-
-The cache automatically invalidates when a session file changes (checked by file size and modification time).
-
-```bash
-# Skip the cache (force re-parsing all files)
-parsimony --no-cache today
-
-# The cache file can be safely deleted at any time
-rm ~/.parsimony/cache.db
-```
+Unknown models fall back to Sonnet pricing.
 
 ---
 
 ## How It Works
 
-Claude Code stores every session as a JSONL file at:
-
 ```
-~/.claude/projects/{encoded-project-path}/{session-uuid}.jsonl
+  ~/.claude/projects/e--My-Project/abc123.jsonl
+                         |
+                  Each line = one event
+                         |
+     +-------------------+-------------------+
+     |                   |                   |
+  {"type":"user"    {"type":"assistant"  {"type":"assistant"
+   "cwd":"/app"     "model":"sonnet"     "model":"opus"
+   "version":"1.0"  "requestId":"r1"     "requestId":"r2"
+   ...}             "usage":{...}        "usage":{...}
+                    "content":[          ...}
+                      {"type":"tool_use"
+                       "name":"Read"}
+                    ]}
+                         |
+                         v
+              +---------------------+
+              | 1. Stream & Parse   |  line-by-line, never loads full file
+              | 2. Dedup by reqId   |  last chunk has cumulative usage
+              | 3. Detect segments  |  sonnet -> opus = new segment
+              | 4. Calculate costs  |  Decimal precision, per-model rates
+              | 5. Aggregate        |  by time/model/tool/project
+              | 6. Render           |  Rich tables, charts, gauges
+              +---------------------+
 ```
-
-Each line is a JSON event (user message, assistant response, tool use, etc.). Parsimony:
-
-1. **Scans** `~/.claude/projects/` to discover all project directories and session files
-2. **Streams** each JSONL file line-by-line (never loads entire files into memory)
-3. **Deduplicates** streaming chunks (multiple entries share the same requestId; the last chunk has cumulative usage)
-4. **Detects model segments** when you switch between Sonnet, Opus, and Haiku mid-session
-5. **Calculates costs** using Decimal precision with per-model pricing rates
-6. **Aggregates** by time period, model, tool, MCP server, or project
-7. **Renders** rich terminal output with tables, bar charts, and gauges
 
 ---
 
-## Development
+## Contributing
 
 ```bash
 git clone https://github.com/MinaSaad1/parsimony.git
 cd parsimony
-
-# Install with dev dependencies
 pip install -e ".[dev]"
 
 # Run tests (170 tests, 91%+ coverage)
 pytest
 
-# Lint
+# Lint and type check
 ruff check src/
-
-# Type check (strict mode)
 mypy src/
 ```
 
@@ -301,4 +318,24 @@ mypy src/
 
 ## License
 
-MIT
+MIT License. See [LICENSE](LICENSE) for details.
+
+Copyright (c) 2026 Parsimony Contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

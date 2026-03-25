@@ -1,113 +1,115 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="680" height="520" viewBox="0 0 680 520">
+<svg xmlns="http://www.w3.org/2000/svg" width="820" height="680" viewBox="0 0 820 680">
   <defs>
     <style>
-      .t { font-family: 'Courier New', Courier, monospace; font-size: 13px; }
+      .t { font-family: 'Courier New', Courier, monospace; font-size: 12.5px; }
       .cyan { fill: #22d3ee; }
       .green { fill: #4ade80; }
-      .magenta { fill: #e879f9; }
-      .yellow { fill: #facc15; }
-      .white { fill: #e6edf3; }
+      .mag { fill: #e879f9; }
+      .yel { fill: #facc15; }
+      .w { fill: #e6edf3; }
       .dim { fill: #8b949e; }
-      .red { fill: #f87171; }
       .blue { fill: #60a5fa; }
     </style>
   </defs>
 
   <!-- Terminal window -->
   <rect width="100%" height="100%" fill="#0d1117" rx="10"/>
-
-  <!-- Title bar -->
   <rect width="100%" height="32" fill="#161b22" rx="10"/>
   <rect y="22" width="100%" height="10" fill="#161b22"/>
   <circle cx="18" cy="16" r="6" fill="#f85149"/>
   <circle cx="38" cy="16" r="6" fill="#f0c74f"/>
   <circle cx="58" cy="16" r="6" fill="#3fb950"/>
-  <text class="t dim" x="280" y="20" text-anchor="middle">parsimony</text>
+  <text class="t dim" x="370" y="20" text-anchor="middle">parsimony</text>
 
-  <!-- Command -->
-  <text class="t dim" x="20" y="58">$</text>
-  <text class="t green" x="35" y="58">parsimony</text>
+  <!-- Command prompt -->
+  <text class="t dim" x="20" y="55">C:\Users\pc&gt;</text>
+  <text class="t green" x="120" y="55">parsimony</text>
 
-  <!-- Title line -->
-  <text class="t dim" x="110" y="82">------</text>
-  <text class="t magenta" x="165" y="82">Parsimony | Wednesday, Mar 25 2026</text>
-  <text class="t dim" x="450" y="82">------</text>
-
-  <!-- Summary -->
-  <text class="t white" x="30" y="106">Total Cost:</text>
-  <text class="t green" x="130" y="106">$2.19</text>
-  <text class="t white" x="195" y="106">Sessions:</text>
-  <text class="t cyan" x="280" y="106">3</text>
-  <text class="t white" x="310" y="106">API Calls:</text>
-  <text class="t cyan" x="405" y="106">7</text>
+  <!-- Summary panel -->
+  <text class="t green" x="20" y="78">╭───────────────────────────────────</text>
+  <text class="t mag" x="285" y="78">Parsimony | Wednesday, Mar 25 2026</text>
+  <text class="t green" x="560" y="78">─────────────────────────────────╮</text>
+  <text class="t green" x="20" y="96">│</text>
+  <text class="t w" x="38" y="96">Total Cost:</text>
+  <text class="t green" x="140" y="96">$1.53</text>
+  <text class="t w" x="205" y="96">Sessions:</text>
+  <text class="t cyan" x="290" y="96">5</text>
+  <text class="t w" x="318" y="96">API Calls:</text>
+  <text class="t cyan" x="410" y="96">21</text>
+  <text class="t green" x="790" y="96">│</text>
+  <text class="t green" x="20" y="114">╰──────────────────────────────────────────────────────────────────────────────────────────────────────╯</text>
 
   <!-- By Model header -->
-  <text class="t white" x="160" y="136" font-weight="bold">By Model</text>
+  <text class="t w" x="290" y="140" font-weight="bold">By Model</text>
 
-  <!-- Model table header -->
-  <text class="t dim" x="30" y="158">+--------------+--------+-------+-------+</text>
-  <text class="t blue" x="30" y="174">  Model</text>
-  <text class="t blue" x="175" y="174">Tokens</text>
-  <text class="t blue" x="250" y="174">Cost</text>
-  <text class="t blue" x="320" y="174">Share</text>
-  <text class="t dim" x="30" y="190">+--------------+--------+-------+-------+</text>
-
-  <!-- Model row -->
-  <text class="t white" x="30" y="206">  Opus 4.6</text>
-  <text class="t yellow" x="168" y="206">319.7K</text>
-  <text class="t green" x="248" y="206">$2.19</text>
-  <text class="t cyan" x="315" y="206">100.0%</text>
-  <text class="t dim" x="30" y="222">+--------------+--------+-------+-------+</text>
+  <!-- Model table -->
+  <text class="t blue" x="195" y="158">┏━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━┳━━━━━━━┓</text>
+  <text class="t blue" x="195" y="174">┃</text>
+  <text class="t blue" x="210" y="174">Model</text>
+  <text class="t blue" x="355" y="174">┃</text>
+  <text class="t blue" x="365" y="174">Tokens</text>
+  <text class="t blue" x="422" y="174">┃</text>
+  <text class="t blue" x="437" y="174">Cost</text>
+  <text class="t blue" x="478" y="174">┃</text>
+  <text class="t blue" x="487" y="174">Share</text>
+  <text class="t blue" x="533" y="174">┃</text>
+  <text class="t blue" x="195" y="190">┡━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━╇━━━━━━━┩</text>
+  <text class="t dim" x="195" y="206">│</text>
+  <text class="t w" x="210" y="206">Opus 4.6</text>
+  <text class="t dim" x="355" y="206">│</text>
+  <text class="t yel" x="365" y="206">976.5K</text>
+  <text class="t dim" x="422" y="206">│</text>
+  <text class="t green" x="433" y="206">$1.46</text>
+  <text class="t dim" x="478" y="206">│</text>
+  <text class="t cyan" x="487" y="206">95.1%</text>
+  <text class="t dim" x="533" y="206">│</text>
+  <text class="t dim" x="195" y="222">└────────────────────┴────────┴───────┴───────┘</text>
 
   <!-- By Tool header -->
-  <text class="t white" x="170" y="250" font-weight="bold">By Tool</text>
+  <text class="t w" x="290" y="248" font-weight="bold">By Tool</text>
 
   <!-- Tool table -->
-  <text class="t dim" x="30" y="268">+------------+-------+---------+</text>
-  <text class="t blue" x="30" y="284">  Tool</text>
-  <text class="t blue" x="175" y="284">Calls</text>
-  <text class="t blue" x="248" y="284">Type</text>
-  <text class="t dim" x="30" y="300">+------------+-------+---------+</text>
-  <text class="t white" x="30" y="316">  Bash</text>
-  <text class="t yellow" x="190" y="316">5</text>
-  <text class="t dim" x="235" y="316">Built-in</text>
-  <text class="t white" x="30" y="332">  Read</text>
-  <text class="t yellow" x="190" y="332">1</text>
-  <text class="t dim" x="235" y="332">Built-in</text>
-  <text class="t dim" x="30" y="348">+------------+-------+---------+</text>
+  <text class="t blue" x="195" y="266">┏━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━┳━━━━━━━━━━┓</text>
+  <text class="t blue" x="195" y="282">┃</text>
+  <text class="t blue" x="210" y="282">Tool</text>
+  <text class="t blue" x="375" y="282">┃</text>
+  <text class="t blue" x="388" y="282">Calls</text>
+  <text class="t blue" x="430" y="282">┃</text>
+  <text class="t blue" x="455" y="282">Type</text>
+  <text class="t blue" x="509" y="282">┃</text>
+  <text class="t blue" x="195" y="298">┡━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━╇━━━━━━━━━━┩</text>
+  <text class="t dim" x="195" y="314">│</text><text class="t green" x="210" y="314">Bash</text><text class="t dim" x="375" y="314">│</text><text class="t yel" x="400" y="314">8</text><text class="t dim" x="430" y="314">│</text><text class="t dim" x="445" y="314">Built-in</text><text class="t dim" x="509" y="314">│</text>
+  <text class="t dim" x="195" y="330">│</text><text class="t green" x="210" y="330">Edit</text><text class="t dim" x="375" y="330">│</text><text class="t yel" x="400" y="330">4</text><text class="t dim" x="430" y="330">│</text><text class="t dim" x="445" y="330">Built-in</text><text class="t dim" x="509" y="330">│</text>
+  <text class="t dim" x="195" y="346">│</text><text class="t green" x="210" y="346">Read</text><text class="t dim" x="375" y="346">│</text><text class="t yel" x="400" y="346">2</text><text class="t dim" x="430" y="346">│</text><text class="t dim" x="445" y="346">Built-in</text><text class="t dim" x="509" y="346">│</text>
+  <text class="t dim" x="195" y="362">│</text><text class="t green" x="210" y="362">Agent</text><text class="t dim" x="375" y="362">│</text><text class="t yel" x="400" y="362">1</text><text class="t dim" x="430" y="362">│</text><text class="t dim" x="445" y="362">Built-in</text><text class="t dim" x="509" y="362">│</text>
+  <text class="t dim" x="195" y="378">│</text><text class="t green" x="210" y="378">Grep</text><text class="t dim" x="375" y="378">│</text><text class="t yel" x="400" y="378">1</text><text class="t dim" x="430" y="378">│</text><text class="t dim" x="445" y="378">Built-in</text><text class="t dim" x="509" y="378">│</text>
+  <text class="t dim" x="195" y="394">└──────────────────────┴───────┴──────────┘</text>
 
-  <!-- Cache Efficiency -->
-  <text class="t dim" x="155" y="374">-----</text>
-  <text class="t cyan" x="198" y="374">Cache Efficiency</text>
-  <text class="t dim" x="345" y="374">-----</text>
-
-  <text class="t white" x="30" y="398">Cache Hit Rate:</text>
-  <rect x="160" y="386" width="200" height="16" fill="#161b22" rx="3"/>
-  <rect x="160" y="386" width="142" height="16" fill="#4ade80" rx="3"/>
-  <rect x="302" y="386" width="58" height="16" fill="#22d3ee" opacity="0.4" rx="3"/>
-  <text class="t cyan" x="375" y="398">70.8%</text>
+  <!-- Cache Efficiency panel -->
+  <text class="t green" x="20" y="420">╭──────────────────────────────────────────────</text>
+  <text class="t cyan" x="380" y="420">Cache Efficiency</text>
+  <text class="t green" x="510" y="420">──────────────────────────────────────╮</text>
+  <text class="t green" x="20" y="438">│</text>
+  <text class="t w" x="40" y="438">Cache Hit Rate:</text>
+  <rect x="175" y="426" width="310" height="16" fill="#161b22" rx="3"/>
+  <rect x="175" y="426" width="263" height="16" fill="#4ade80" rx="3"/>
+  <rect x="438" y="426" width="47" height="16" fill="#8b949e" opacity="0.3" rx="3"/>
+  <text class="t cyan" x="500" y="438">84.7%</text>
+  <text class="t green" x="790" y="438">│</text>
+  <text class="t green" x="20" y="456">╰──────────────────────────────────────────────────────────────────────────────────────────────────────╯</text>
 
   <!-- Sessions header -->
-  <text class="t white" x="240" y="426" font-weight="bold">Sessions</text>
+  <text class="t w" x="330" y="482" font-weight="bold">Sessions</text>
 
   <!-- Sessions table -->
-  <text class="t dim" x="20" y="444">+-------+--------+----------------------------+----------+-------+</text>
-  <text class="t magenta" x="20" y="460">  Time</text>
-  <text class="t magenta" x="90" y="460">Duration</text>
-  <text class="t magenta" x="175" y="460">Project</text>
-  <text class="t magenta" x="395" y="460">Model(s)</text>
-  <text class="t magenta" x="495" y="460">Cost</text>
-  <text class="t dim" x="20" y="476">+-------+--------+----------------------------+----------+-------+</text>
+  <text class="t blue" x="20" y="500">┏━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━┓</text>
+  <text class="t blue" x="20" y="516">┃</text><text class="t mag" x="30" y="516">Time</text><text class="t blue" x="103" y="516">┃</text><text class="t mag" x="113" y="516">Duration</text><text class="t blue" x="186" y="516">┃</text><text class="t mag" x="196" y="516">Project</text><text class="t blue" x="498" y="516">┃</text><text class="t mag" x="508" y="516">Model(s)</text><text class="t blue" x="596" y="516">┃</text><text class="t mag" x="610" y="516">Cost</text><text class="t blue" x="652" y="516">┃</text>
+  <text class="t blue" x="20" y="532">┡━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━┩</text>
 
-  <text class="t dim" x="20" y="492">  15:40</text>
-  <text class="t white" x="100" y="492">10s</text>
-  <text class="t cyan" x="160" y="492">C--Users-pc</text>
-  <text class="t white" x="395" y="492">Opus 4.6</text>
-  <text class="t green" x="495" y="492">$0.97</text>
-
-  <text class="t dim" x="20" y="508">  18:04</text>
-  <text class="t white" x="90" y="508">7m 20s</text>
-  <text class="t cyan" x="160" y="508">e--Coding-Projects-Open-Source</text>
-  <text class="t white" x="395" y="508">Opus 4.6</text>
-  <text class="t green" x="495" y="508">$0.62</text>
+  <text class="t dim" x="20" y="548">│</text><text class="t dim" x="30" y="548">20:54</text><text class="t dim" x="103" y="548">│</text><text class="t w" x="115" y="548">4m 40s</text><text class="t dim" x="186" y="548">│</text><text class="t cyan" x="196" y="548">e--Coding-Projects-Open-Source</text><text class="t dim" x="498" y="548">│</text><text class="t w" x="508" y="548">Opus 4.6</text><text class="t dim" x="596" y="548">│</text><text class="t green" x="606" y="548">$0.50</text><text class="t dim" x="652" y="548">│</text>
+  <text class="t dim" x="20" y="564">│</text><text class="t dim" x="30" y="564">15:40</text><text class="t dim" x="103" y="564">│</text><text class="t w" x="135" y="564">10s</text><text class="t dim" x="186" y="564">│</text><text class="t cyan" x="196" y="564">C--Users-pc</text><text class="t dim" x="498" y="564">│</text><text class="t w" x="508" y="564">Opus 4.6</text><text class="t dim" x="596" y="564">│</text><text class="t green" x="606" y="564">$0.32</text><text class="t dim" x="652" y="564">│</text>
+  <text class="t dim" x="20" y="580">│</text><text class="t dim" x="30" y="580">21:05</text><text class="t dim" x="103" y="580">│</text><text class="t w" x="135" y="580">35s</text><text class="t dim" x="186" y="580">│</text><text class="t cyan" x="196" y="580">e--Coding-Projects-vento-solutions</text><text class="t dim" x="498" y="580">│</text><text class="t w" x="508" y="580">Opus 4.6</text><text class="t dim" x="596" y="580">│</text><text class="t green" x="606" y="580">$0.30</text><text class="t dim" x="652" y="580">│</text>
+  <text class="t dim" x="20" y="596">│</text><text class="t dim" x="30" y="596">18:04</text><text class="t dim" x="103" y="596">│</text><text class="t w" x="115" y="596">7m 20s</text><text class="t dim" x="186" y="596">│</text><text class="t cyan" x="196" y="596">e--Coding-Projects-Open-Source</text><text class="t dim" x="498" y="596">│</text><text class="t w" x="508" y="596">Opus 4.6</text><text class="t dim" x="596" y="596">│</text><text class="t green" x="606" y="596">$0.21</text><text class="t dim" x="652" y="596">│</text>
+  <text class="t dim" x="20" y="612">│</text><text class="t dim" x="30" y="612">16:57</text><text class="t dim" x="103" y="612">│</text><text class="t w" x="115" y="612">1m 13s</text><text class="t dim" x="186" y="612">│</text><text class="t cyan" x="196" y="612">C--Users-pc</text><text class="t dim" x="498" y="612">│</text><text class="t w" x="508" y="612">Opus 4.6</text><text class="t dim" x="596" y="612">│</text><text class="t green" x="606" y="612">$0.20</text><text class="t dim" x="652" y="612">│</text>
+  <text class="t dim" x="20" y="628">└──────────┴──────────┴──────────────────────────────────────┴────────────┴───────┘</text>
 </svg>

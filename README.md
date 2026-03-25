@@ -1,7 +1,7 @@
 <div align="center">
 
 <picture>
-  <img alt="Parsimony" src="assets/logo.svg" width="750">
+  <img alt="Parsimony" src="assets/logo.svg?v=2" width="750">
 </picture>
 
 </div>

@@ -1,7 +1,7 @@
 <div align="center">
 
 <picture>
-  <img alt="Parsimony" src="assets/header.svg" width="750">
+  <img alt="Parsimony" src="assets/logo.svg" width="750">
 </picture>
 
 </div>
@@ -23,7 +23,7 @@ You use Claude Code daily but have no idea which sessions cost the most, which t
 
 <div align="center">
   <picture>
-    <img alt="Parsimony output example" src="assets/example-output.svg" width="680">
+    <img alt="Parsimony output example" src="assets/demo.svg" width="680">
   </picture>
 </div>
 

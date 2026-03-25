@@ -8,19 +8,21 @@ from pathlib import Path
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
-from rich.text import Text
 
 from parsimony.aggregator.rollup import compute_rollup
+from parsimony.budget import BudgetStatus, TokenBudgetStatus
 from parsimony.models.cost import calculate_session_cost
 from parsimony.models.session import Session
 from parsimony.output.display_config import DisplayConfig
 from parsimony.output.tables import (
+    render_budget_warning,
     render_comparison,
     render_mcp_breakdown,
     render_model_breakdown,
     render_session_detail,
     render_session_list,
     render_summary,
+    render_token_budget_warning,
     render_tool_breakdown,
 )
 from parsimony.parser.reader import read_events
@@ -130,3 +132,123 @@ class TestRenderComparison:
         text = _render_to_string(result)
         assert "Period A" in text
         assert "Period B" in text
+
+    def test_comparison_with_cost(self) -> None:
+        s1 = _make_session("simple_session.jsonl", "s1")
+        s2 = _make_session("multi_model_session.jsonl", "s2")
+        r1 = compute_rollup([s1])
+        r2 = compute_rollup([s2])
+        config = DisplayConfig(show_cost=True)
+        result = render_comparison([("A", r1), ("B", r2)], config=config)
+        text = _render_to_string(result)
+        assert "$" in text
+
+
+class TestRenderSessionDetailCoverage:
+    def test_with_show_cost(self) -> None:
+        session = _make_session("simple_session.jsonl", "s1")
+        cost = calculate_session_cost(session)
+        config = DisplayConfig(show_cost=True)
+        result = render_session_detail(session, cost, config=config)
+        text = _render_to_string(result)
+        assert "$" in text
+
+    def test_subagent_session(self) -> None:
+        session = _make_session("subagent_session.jsonl", "s1")
+        cost = calculate_session_cost(session)
+        result = render_session_detail(session, cost)
+        text = _render_to_string(result)
+        assert "Subagent" in text or "Session" in text
+
+
+class TestRenderSessionListCoverage:
+    def test_with_show_cost(self) -> None:
+        session = _make_session("simple_session.jsonl", "s1")
+        cost = calculate_session_cost(session)
+        config = DisplayConfig(show_cost=True)
+        result = render_session_list([(session, cost)], config=config)
+        text = _render_to_string(result)
+        assert "$" in text
+
+    def test_multi_model_session(self) -> None:
+        session = _make_session("multi_model_session.jsonl", "s1")
+        cost = calculate_session_cost(session)
+        result = render_session_list([(session, cost)])
+        assert isinstance(result, Table)
+
+
+class TestRenderModelBreakdownCoverage:
+    def test_with_show_cost(self) -> None:
+        session = _make_session("multi_model_session.jsonl", "s1")
+        rollup = compute_rollup([session])
+        config = DisplayConfig(show_cost=True)
+        result = render_model_breakdown(rollup, config=config)
+        text = _render_to_string(result)
+        assert "$" in text
+
+
+class TestRenderBudgetWarning:
+    def test_empty_returns_none(self) -> None:
+        assert render_budget_warning([]) is None
+
+    def test_under_threshold_returns_none(self) -> None:
+        status = BudgetStatus(
+            period="daily", spent=Decimal("1.00"), limit=Decimal("10.00"),
+            percentage=10.0, over_budget=False,
+        )
+        assert render_budget_warning([status]) is None
+
+    def test_over_budget_returns_panel(self) -> None:
+        status = BudgetStatus(
+            period="daily", spent=Decimal("12.00"), limit=Decimal("10.00"),
+            percentage=120.0, over_budget=True,
+        )
+        result = render_budget_warning([status])
+        assert isinstance(result, Panel)
+        text = _render_to_string(result)
+        assert "OVER" in text
+
+    def test_warning_threshold(self) -> None:
+        status = BudgetStatus(
+            period="weekly", spent=Decimal("9.50"), limit=Decimal("10.00"),
+            percentage=95.0, over_budget=False,
+        )
+        result = render_budget_warning([status])
+        assert isinstance(result, Panel)
+        text = _render_to_string(result)
+        assert "WARNING" in text
+
+    def test_notice_threshold(self) -> None:
+        status = BudgetStatus(
+            period="weekly", spent=Decimal("7.50"), limit=Decimal("10.00"),
+            percentage=75.0, over_budget=False,
+        )
+        result = render_budget_warning([status])
+        assert isinstance(result, Panel)
+        text = _render_to_string(result)
+        assert "NOTICE" in text
+
+
+class TestRenderTokenBudgetWarning:
+    def test_empty_returns_none(self) -> None:
+        assert render_token_budget_warning([]) is None
+
+    def test_green_status(self) -> None:
+        status = TokenBudgetStatus(scope="weekly", used=20_000, limit=88_000)
+        result = render_token_budget_warning([status])
+        assert isinstance(result, Panel)
+
+    def test_yellow_status(self) -> None:
+        status = TokenBudgetStatus(scope="weekly", used=70_000, limit=88_000)
+        result = render_token_budget_warning([status])
+        assert isinstance(result, Panel)
+
+    def test_red_status(self) -> None:
+        status = TokenBudgetStatus(scope="session", used=85_000, limit=88_000)
+        result = render_token_budget_warning([status])
+        assert isinstance(result, Panel)
+
+    def test_over_limit(self) -> None:
+        status = TokenBudgetStatus(scope="session", used=100_000, limit=88_000)
+        result = render_token_budget_warning([status])
+        assert isinstance(result, Panel)

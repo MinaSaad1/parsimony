@@ -10,15 +10,13 @@ from unittest.mock import patch
 from click.testing import CliRunner
 
 from parsimony.budget import (
+    TIER_PRESETS,
     BudgetConfig,
-    BudgetStatus,
+    TokenBudgetConfig,
     check_budget,
     check_token_budget,
     load_budget,
     load_token_budget,
-    TIER_PRESETS,
-    TokenBudgetConfig,
-    TokenBudgetStatus,
 )
 from parsimony.cli import main
 from parsimony.models.session import Session

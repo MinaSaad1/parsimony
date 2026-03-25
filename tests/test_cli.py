@@ -133,6 +133,48 @@ class TestCLICompare:
         assert result.exit_code == 0
 
 
+class TestCLIShowCost:
+    def test_show_cost_flag(self) -> None:
+        runner = CliRunner()
+        with patch("parsimony.cli._load_all_sessions", return_value=_mock_sessions()):
+            result = runner.invoke(main, ["--show-cost", "today"])
+        assert result.exit_code == 0
+
+    def test_show_cost_with_week(self) -> None:
+        runner = CliRunner()
+        with patch("parsimony.cli._load_all_sessions", return_value=_mock_sessions()):
+            result = runner.invoke(main, ["--show-cost", "week"])
+        assert result.exit_code == 0
+
+
+class TestCLITier:
+    def test_tier_flag(self) -> None:
+        runner = CliRunner()
+        with patch("parsimony.cli._load_all_sessions", return_value=_mock_sessions()):
+            result = runner.invoke(main, ["--tier", "max5", "today"])
+        assert result.exit_code == 0
+
+    def test_tier_with_budget(self) -> None:
+        runner = CliRunner()
+        with patch("parsimony.cli._load_all_sessions", return_value=_mock_sessions()):
+            result = runner.invoke(main, ["--tier", "pro", "budget"])
+        assert result.exit_code == 0
+
+
+class TestCLITokenFilters:
+    def test_min_tokens(self) -> None:
+        runner = CliRunner()
+        with patch("parsimony.cli._load_all_sessions", return_value=_mock_sessions()):
+            result = runner.invoke(main, ["--min-tokens", "1", "today"])
+        assert result.exit_code == 0
+
+    def test_max_tokens(self) -> None:
+        runner = CliRunner()
+        with patch("parsimony.cli._load_all_sessions", return_value=_mock_sessions()):
+            result = runner.invoke(main, ["--max-tokens", "999999999", "today"])
+        assert result.exit_code == 0
+
+
 class TestCLIExport:
     def test_json_export(self) -> None:
         runner = CliRunner()

@@ -1,17 +1,11 @@
-<div align="center">
-
 <img src="assets/parsimony-title.svg" alt="Parsimony" width="880">
 
-<strong>Token usage and cost observability for Claude Code</strong>
+**Token usage and cost observability for Claude Code**
 
-</div>
-
-<p align="center">
-  <a href="https://pypi.org/project/parsimony-cli/"><img src="https://img.shields.io/pypi/v/parsimony-cli?color=blue" alt="PyPI"></a>
-  <a href="https://pypi.org/project/parsimony-cli/"><img src="https://img.shields.io/pypi/pyversions/parsimony-cli" alt="Python"></a>
-  <a href="https://github.com/MinaSaad1/parsimony/blob/main/LICENSE"><img src="https://img.shields.io/github/license/MinaSaad1/parsimony" alt="License"></a>
-  <a href="https://github.com/MinaSaad1/parsimony/actions"><img src="https://img.shields.io/github/actions/workflow/status/MinaSaad1/parsimony/ci.yml?branch=main" alt="CI"></a>
-</p>
+<a href="https://pypi.org/project/parsimony-cli/"><img src="https://img.shields.io/pypi/v/parsimony-cli?color=blue" alt="PyPI"></a>
+<a href="https://pypi.org/project/parsimony-cli/"><img src="https://img.shields.io/pypi/pyversions/parsimony-cli" alt="Python"></a>
+<a href="https://github.com/MinaSaad1/parsimony/blob/main/LICENSE"><img src="https://img.shields.io/github/license/MinaSaad1/parsimony" alt="License"></a>
+<a href="https://github.com/MinaSaad1/parsimony/actions"><img src="https://img.shields.io/github/actions/workflow/status/MinaSaad1/parsimony/ci.yml?branch=main" alt="CI"></a>
 
 ---
 

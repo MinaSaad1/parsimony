@@ -1,6 +1,13 @@
 <div align="center">
 
-<img src="assets/parsimony-title.svg" alt="Parsimony" width="880">
+```
+ ██████╗  █████╗ ██████╗ ███████╗██╗███╗   ███╗ ██████╗ ███╗   ██╗██╗   ██╗
+ ██╔══██╗██╔══██╗██╔══██╗██╔════╝██║████╗ ████║██╔═══██╗████╗  ██║╚██╗ ██╔╝
+ ██████╔╝███████║██████╔╝███████╗██║██╔████╔██║██║   ██║██╔██╗ ██║ ╚████╔╝
+ ██╔═══╝ ██╔══██║██╔══██╗╚════██║██║██║╚██╔╝██║██║   ██║██║╚██╗██║  ╚██╔╝
+ ██║     ██║  ██║██║  ██║███████║██║██║ ╚═╝ ██║╚██████╔╝██║ ╚████║   ██║
+ ╚═╝     ╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝╚═╝╚═╝     ╚═╝ ╚═════╝ ╚═╝  ╚═══╝   ╚═╝
+```
 
 <strong>Token usage and cost observability for Claude Code</strong>
 
@@ -155,12 +162,12 @@ graph TD
 
 ### What Each Report Shows
 
-| Section | Details |
-|---------|---------|
-| **Summary** | Total cost, session count, API calls |
-| **By Model** | Per-model tokens, cost, share % |
-| **By Tool** | Tool call counts, MCP vs built-in |
-| **Cache** | Hit rate gauge, read/write breakdown |
+| Section      | Details                              |
+| ------------ | ------------------------------------ |
+| **Summary**  | Total cost, session count, API calls |
+| **By Model** | Per-model tokens, cost, share %      |
+| **By Tool**  | Tool call counts, MCP vs built-in    |
+| **Cache**    | Hit rate gauge, read/write breakdown |
 | **Sessions** | Time, duration, project, model, cost |
 
 ---
@@ -172,11 +179,11 @@ Built-in pricing for all Claude models. Override at `~/.parsimony/pricing.yaml`:
 <details>
 <summary>Default pricing table</summary>
 
-| Model | Input | Output | Cache Write | Cache Read |
-|-------|------:|-------:|------------:|-----------:|
-| Opus 4.6 | $5.00/M | $25.00/M | $6.25/M | $0.50/M |
-| Sonnet 4.6 | $3.00/M | $15.00/M | $3.75/M | $0.30/M |
-| Haiku 4.5 | $1.00/M | $5.00/M | $1.25/M | $0.10/M |
+| Model      |   Input |   Output | Cache Write | Cache Read |
+| ---------- | ------: | -------: | ----------: | ---------: |
+| Opus 4.6   | $5.00/M | $25.00/M |     $6.25/M |    $0.50/M |
+| Sonnet 4.6 | $3.00/M | $15.00/M |     $3.75/M |    $0.30/M |
+| Haiku 4.5  | $1.00/M |  $5.00/M |     $1.25/M |    $0.10/M |
 
 Unknown models fall back to Sonnet pricing.
 

@@ -2,7 +2,11 @@
 
 from __future__ import annotations
 
-from parsimony.dashboard.widgets import _bar
+import pytest
+
+pytest.importorskip("textual", reason="textual not installed")
+
+from parsimony.dashboard.widgets import _bar  # noqa: E402
 
 
 class TestBar:

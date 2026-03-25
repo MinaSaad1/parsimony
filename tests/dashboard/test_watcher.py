@@ -8,7 +8,9 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from parsimony.dashboard.watcher import _jsonl_filter, watch_sessions
+pytest.importorskip("watchfiles", reason="watchfiles not installed")
+
+from parsimony.dashboard.watcher import _jsonl_filter, watch_sessions  # noqa: E402
 
 
 class TestJsonlFilter:
@@ -30,8 +32,7 @@ class TestJsonlFilter:
 class TestWatchSessions:
     """Tests for the watch_sessions async function."""
 
-    @pytest.mark.asyncio
-    async def test_stop_event_stops_watcher(self) -> None:
+    def test_stop_event_stops_watcher(self) -> None:
         stop_event = asyncio.Event()
         callback = AsyncMock()
         stop_event.set()
@@ -40,13 +41,14 @@ class TestWatchSessions:
             return
             yield  # make it an async generator  # noqa: RET504
 
-        with patch("watchfiles.awatch", new=empty_awatch):
-            await watch_sessions(Path("/fake"), callback, stop_event)
+        async def run() -> None:
+            with patch("watchfiles.awatch", new=empty_awatch):
+                await watch_sessions(Path("/fake"), callback, stop_event)
 
+        asyncio.run(run())
         callback.assert_not_called()
 
-    @pytest.mark.asyncio
-    async def test_callback_invoked_on_jsonl_changes(self) -> None:
+    def test_callback_invoked_on_jsonl_changes(self) -> None:
         callback = AsyncMock()
         stop_event = asyncio.Event()
 
@@ -58,16 +60,17 @@ class TestWatchSessions:
         async def fake_awatch(*args, **kwargs):  # type: ignore[no-untyped-def]
             yield changes
 
-        with patch("watchfiles.awatch", new=fake_awatch):
-            await watch_sessions(Path("/fake"), callback, stop_event)
+        async def run() -> None:
+            with patch("watchfiles.awatch", new=fake_awatch):
+                await watch_sessions(Path("/fake"), callback, stop_event)
 
+        asyncio.run(run())
         callback.assert_called_once()
         called_paths = callback.call_args[0][0]
         assert len(called_paths) == 1
         assert Path("/projects/abc/session.jsonl") in called_paths
 
-    @pytest.mark.asyncio
-    async def test_callback_error_does_not_crash(self) -> None:
+    def test_callback_error_does_not_crash(self) -> None:
         callback = AsyncMock(side_effect=RuntimeError("boom"))
         stop_event = asyncio.Event()
 
@@ -76,12 +79,13 @@ class TestWatchSessions:
         async def fake_awatch(*args, **kwargs):  # type: ignore[no-untyped-def]
             yield changes
 
-        with patch("watchfiles.awatch", new=fake_awatch):
-            # Should not raise
-            await watch_sessions(Path("/fake"), callback, stop_event)
+        async def run() -> None:
+            with patch("watchfiles.awatch", new=fake_awatch):
+                await watch_sessions(Path("/fake"), callback, stop_event)
 
-    @pytest.mark.asyncio
-    async def test_non_jsonl_changes_skipped(self) -> None:
+        asyncio.run(run())
+
+    def test_non_jsonl_changes_skipped(self) -> None:
         callback = AsyncMock()
         stop_event = asyncio.Event()
 
@@ -90,7 +94,9 @@ class TestWatchSessions:
         async def fake_awatch(*args, **kwargs):  # type: ignore[no-untyped-def]
             yield changes
 
-        with patch("watchfiles.awatch", new=fake_awatch):
-            await watch_sessions(Path("/fake"), callback, stop_event)
+        async def run() -> None:
+            with patch("watchfiles.awatch", new=fake_awatch):
+                await watch_sessions(Path("/fake"), callback, stop_event)
 
+        asyncio.run(run())
         callback.assert_not_called()

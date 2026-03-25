@@ -40,7 +40,7 @@ You should see directories with names like `e--Coding-Projects-MyApp`. Each cont
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/parsimony.git
+git clone https://github.com/MinaSaad1/parsimony.git
 cd parsimony
 
 # Install
@@ -281,7 +281,7 @@ Each line is a JSON event (user message, assistant response, tool use, etc.). Pa
 ## Development
 
 ```bash
-git clone https://github.com/your-username/parsimony.git
+git clone https://github.com/MinaSaad1/parsimony.git
 cd parsimony
 
 # Install with dev dependencies

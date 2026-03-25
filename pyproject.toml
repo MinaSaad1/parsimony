@@ -72,6 +72,11 @@ python_version = "3.11"
 module = ["textual.*", "watchfiles.*"]
 ignore_missing_imports = true
 
+[[tool.mypy.overrides]]
+module = ["parsimony.dashboard.*"]
+disallow_subclassing_any = false
+warn_unused_ignores = false
+
 [tool.coverage.run]
 source = ["parsimony"]
 

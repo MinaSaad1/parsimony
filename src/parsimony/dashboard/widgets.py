@@ -102,7 +102,7 @@ class CacheGauge(Static):
         self.update(f"  Hit Rate: {bar}  {format_percentage(efficiency)}")
 
 
-class SessionLog(DataTable):  # type: ignore[type-arg]
+class SessionLog(DataTable):  # type: ignore[type-arg, misc]
     """Scrollable session list sorted by cost."""
 
     _initialized: bool = False

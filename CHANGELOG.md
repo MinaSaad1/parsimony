@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.3.1 (2026-03-26)
+## 0.3.2 (2026-03-26)
 
 ### Removed
 
@@ -8,7 +8,7 @@
 
 ### Changed
 
-- **Demo SVG** updated to show token-first output with generic project names
+- **Demo and dashboard SVGs** updated to show token-first output with generic project names and correct model share percentages
 
 ## 0.3.0 (2026-03-26)
 

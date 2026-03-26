@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.3.1 (2026-03-26)
+
+### Removed
+
+- **Built-in tier presets** (`--tier pro|max5|max20`) removed. Anthropic's limits are compute-weighted, not raw token counts, so hardcoded presets were inaccurate. Set your own limits in `~/.parsimony/config.yaml` based on your actual usage page.
+
+### Changed
+
+- **Demo SVG** updated to show token-first output with generic project names
+
 ## 0.3.0 (2026-03-26)
 
 Usage-first reframing. All output now leads with token usage; cost is opt-in via `--show-cost`.
@@ -8,8 +18,7 @@ Usage-first reframing. All output now leads with token usage; cost is opt-in via
 
 - **Token-first presentation** across all tables, charts, dashboard, and diffs
 - **`--show-cost` flag** to include API cost estimate columns (hidden by default)
-- **Subscription tier presets** via `--tier pro|max5|max20` with approximate session token limits
-- **Token budgets** with configurable session and weekly limits in `~/.parsimony/config.yaml`
+- **Token budgets** with custom session and weekly limits in `~/.parsimony/config.yaml`
 - **Usage gauges** showing progress bars against session peak and weekly token limits
 - **Token-based filtering** with `--min-tokens` and `--max-tokens` flags
 - **Token trend analysis** with `moving_average_tokens()` and `trend_direction_tokens()`

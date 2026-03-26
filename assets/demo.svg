@@ -10,134 +10,142 @@
   <circle cx="58" cy="16" r="6" fill="#3fb950"/>
   <text class="t dim" x="380.0" y="20" text-anchor="middle">parsimony</text>
   <text class="t " x="20" y="58" fill="#8b949e">C:\Users\pc&gt;</text>
-  <text class="t " x="130" y="58" fill="#4ade80">parsimony</text>
-  <rect x="20" y="72" width="720" height="38" fill="none" stroke="#4ade80" stroke-width="1.2" rx="6"/>
-  <rect x="244.5" y="66" width="271.0" height="12" fill="#0d1117" rx="0" />
-  <text class="t " x="380.0" y="76" fill="#e879f9" text-anchor="middle">Parsimony | Wednesday, Mar 25 2026</text>
-  <text class="t " x="40" y="96" fill="#e6edf3">Total Cost:</text>
-  <text class="t " x="145" y="96" fill="#4ade80">$1.53</text>
-  <text class="t " x="215" y="96" fill="#e6edf3">Sessions:</text>
-  <text class="t " x="305" y="96" fill="#22d3ee">5</text>
-  <text class="t " x="335" y="96" fill="#e6edf3">API Calls:</text>
-  <text class="t " x="435" y="96" fill="#22d3ee">21</text>
-  <text class="t " x="380.0" y="138" fill="#e6edf3" text-anchor="middle" font-weight="bold">By Model</text>
-  <rect x="170" y="148" width="420" height="22" fill="#1a1f2e" rx="0" />
-  <line x1="170" y1="148" x2="590" y2="148" stroke="#60a5fa" stroke-width="2"/>
-  <line x1="170" y1="170" x2="590" y2="170" stroke="#60a5fa" stroke-width="2"/>
-  <text class="t " x="178" y="163" fill="#60a5fa">Model</text>
-  <text class="t " x="358" y="163" fill="#60a5fa">Tokens</text>
-  <text class="t " x="448" y="163" fill="#60a5fa">Cost</text>
-  <text class="t " x="523" y="163" fill="#60a5fa">Share</text>
-  <line x1="170" y1="148" x2="170" y2="170" stroke="#60a5fa" stroke-width="2"/>
-  <line x1="350" y1="148" x2="350" y2="170" stroke="#60a5fa" stroke-width="2"/>
-  <line x1="440" y1="148" x2="440" y2="170" stroke="#60a5fa" stroke-width="2"/>
-  <line x1="515" y1="148" x2="515" y2="170" stroke="#60a5fa" stroke-width="2"/>
-  <line x1="590" y1="148" x2="590" y2="170" stroke="#60a5fa" stroke-width="2"/>
-  <text class="t " x="178" y="185" fill="#e6edf3">Opus 4.6</text>
-  <text class="t " x="358" y="185" fill="#facc15">976.5K</text>
-  <text class="t " x="448" y="185" fill="#4ade80">$1.46</text>
-  <text class="t " x="523" y="185" fill="#22d3ee">95.1%</text>
-  <line x1="170" y1="192" x2="590" y2="192" stroke="#8b949e" stroke-width="0.5"/>
-  <line x1="170" y1="170" x2="170" y2="192" stroke="#8b949e" stroke-width="0.5"/>
-  <line x1="350" y1="170" x2="350" y2="192" stroke="#8b949e" stroke-width="0.5"/>
-  <line x1="440" y1="170" x2="440" y2="192" stroke="#8b949e" stroke-width="0.5"/>
-  <line x1="515" y1="170" x2="515" y2="192" stroke="#8b949e" stroke-width="0.5"/>
-  <line x1="590" y1="170" x2="590" y2="192" stroke="#8b949e" stroke-width="0.5"/>
-  <line x1="170" y1="192" x2="590" y2="192" stroke="#8b949e" stroke-width="1"/>
-  <text class="t " x="380.0" y="218" fill="#e6edf3" text-anchor="middle" font-weight="bold">By Tool</text>
-  <rect x="195" y="228" width="340" height="22" fill="#1a1f2e" rx="0" />
-  <line x1="195" y1="228" x2="535" y2="228" stroke="#60a5fa" stroke-width="2"/>
-  <line x1="195" y1="250" x2="535" y2="250" stroke="#60a5fa" stroke-width="2"/>
-  <text class="t " x="203" y="243" fill="#60a5fa">Tool</text>
-  <text class="t " x="383" y="243" fill="#60a5fa">Calls</text>
-  <text class="t " x="453" y="243" fill="#60a5fa">Type</text>
-  <line x1="195" y1="228" x2="195" y2="250" stroke="#60a5fa" stroke-width="2"/>
-  <line x1="375" y1="228" x2="375" y2="250" stroke="#60a5fa" stroke-width="2"/>
-  <line x1="445" y1="228" x2="445" y2="250" stroke="#60a5fa" stroke-width="2"/>
-  <line x1="535" y1="228" x2="535" y2="250" stroke="#60a5fa" stroke-width="2"/>
-  <text class="t " x="203" y="265" fill="#4ade80">Bash</text>
-  <text class="t " x="383" y="265" fill="#facc15">8</text>
-  <text class="t " x="453" y="265" fill="#8b949e">Built-in</text>
-  <line x1="195" y1="272" x2="535" y2="272" stroke="#8b949e" stroke-width="0.5"/>
-  <text class="t " x="203" y="287" fill="#4ade80">Edit</text>
-  <text class="t " x="383" y="287" fill="#facc15">4</text>
-  <text class="t " x="453" y="287" fill="#8b949e">Built-in</text>
-  <line x1="195" y1="294" x2="535" y2="294" stroke="#8b949e" stroke-width="0.5"/>
-  <text class="t " x="203" y="309" fill="#4ade80">Read</text>
-  <text class="t " x="383" y="309" fill="#facc15">2</text>
-  <text class="t " x="453" y="309" fill="#8b949e">Built-in</text>
-  <line x1="195" y1="316" x2="535" y2="316" stroke="#8b949e" stroke-width="0.5"/>
-  <text class="t " x="203" y="331" fill="#4ade80">Agent</text>
-  <text class="t " x="383" y="331" fill="#facc15">1</text>
-  <text class="t " x="453" y="331" fill="#8b949e">Built-in</text>
-  <line x1="195" y1="338" x2="535" y2="338" stroke="#8b949e" stroke-width="0.5"/>
-  <text class="t " x="203" y="353" fill="#4ade80">Grep</text>
-  <text class="t " x="383" y="353" fill="#facc15">1</text>
-  <text class="t " x="453" y="353" fill="#8b949e">Built-in</text>
-  <line x1="195" y1="360" x2="535" y2="360" stroke="#8b949e" stroke-width="0.5"/>
-  <line x1="195" y1="250" x2="195" y2="360" stroke="#8b949e" stroke-width="0.5"/>
-  <line x1="375" y1="250" x2="375" y2="360" stroke="#8b949e" stroke-width="0.5"/>
-  <line x1="445" y1="250" x2="445" y2="360" stroke="#8b949e" stroke-width="0.5"/>
-  <line x1="535" y1="250" x2="535" y2="360" stroke="#8b949e" stroke-width="0.5"/>
-  <line x1="195" y1="360" x2="535" y2="360" stroke="#8b949e" stroke-width="1"/>
-  <rect x="20" y="382" width="720" height="38" fill="none" stroke="#4ade80" stroke-width="1.2" rx="6"/>
-  <rect x="312.0" y="376" width="136.0" height="12" fill="#0d1117" rx="0" />
-  <text class="t " x="380.0" y="386" fill="#22d3ee" text-anchor="middle">Cache Efficiency</text>
-  <text class="t " x="40" y="406" fill="#e6edf3">Cache Hit Rate:</text>
-  <rect x="175" y="396" width="350" height="14" fill="#1a1f2e" rx="4" />
-  <rect x="175" y="396" width="296.45" height="14" fill="#4ade80" rx="4" />
-  <rect x="471.45" y="396" width="53.55000000000001" height="14" fill="#6b7280" rx="0" opacity="0.4"/>
-  <text class="t " x="540" y="406" fill="#22d3ee">84.7%</text>
-  <text class="t " x="380.0" y="442" fill="#e6edf3" text-anchor="middle" font-weight="bold">Sessions</text>
-  <rect x="30" y="452" width="620" height="22" fill="#1a1f2e" rx="0" />
-  <line x1="30" y1="452" x2="650" y2="452" stroke="#e879f9" stroke-width="2"/>
-  <line x1="30" y1="474" x2="650" y2="474" stroke="#e879f9" stroke-width="2"/>
-  <text class="t " x="38" y="467" fill="#e879f9">Time</text>
-  <text class="t " x="118" y="467" fill="#e879f9">Duration</text>
-  <text class="t " x="198" y="467" fill="#e879f9">Project</text>
-  <text class="t " x="488" y="467" fill="#e879f9">Model(s)</text>
-  <text class="t " x="588" y="467" fill="#e879f9">Cost</text>
-  <line x1="30" y1="452" x2="30" y2="474" stroke="#e879f9" stroke-width="2"/>
-  <line x1="110" y1="452" x2="110" y2="474" stroke="#e879f9" stroke-width="2"/>
-  <line x1="190" y1="452" x2="190" y2="474" stroke="#e879f9" stroke-width="2"/>
-  <line x1="480" y1="452" x2="480" y2="474" stroke="#e879f9" stroke-width="2"/>
-  <line x1="580" y1="452" x2="580" y2="474" stroke="#e879f9" stroke-width="2"/>
-  <line x1="650" y1="452" x2="650" y2="474" stroke="#e879f9" stroke-width="2"/>
-  <text class="t " x="38" y="489" fill="#8b949e">20:54</text>
-  <text class="t " x="118" y="489" fill="#e6edf3">4m 40s</text>
-  <text class="t " x="198" y="489" fill="#22d3ee">e--Coding-Projects-Open-Source</text>
-  <text class="t " x="488" y="489" fill="#e6edf3">Opus 4.6</text>
-  <text class="t " x="588" y="489" fill="#4ade80">$0.50</text>
-  <line x1="30" y1="496" x2="650" y2="496" stroke="#8b949e" stroke-width="0.5"/>
-  <text class="t " x="38" y="511" fill="#8b949e">15:40</text>
-  <text class="t " x="118" y="511" fill="#e6edf3">10s</text>
-  <text class="t " x="198" y="511" fill="#22d3ee">C--Users-pc</text>
-  <text class="t " x="488" y="511" fill="#e6edf3">Opus 4.6</text>
-  <text class="t " x="588" y="511" fill="#4ade80">$0.32</text>
-  <line x1="30" y1="518" x2="650" y2="518" stroke="#8b949e" stroke-width="0.5"/>
-  <text class="t " x="38" y="533" fill="#8b949e">21:05</text>
-  <text class="t " x="118" y="533" fill="#e6edf3">35s</text>
-  <text class="t " x="198" y="533" fill="#22d3ee">e--Coding-Projects-vento-solutions</text>
-  <text class="t " x="488" y="533" fill="#e6edf3">Opus 4.6</text>
-  <text class="t " x="588" y="533" fill="#4ade80">$0.30</text>
-  <line x1="30" y1="540" x2="650" y2="540" stroke="#8b949e" stroke-width="0.5"/>
-  <text class="t " x="38" y="555" fill="#8b949e">18:04</text>
-  <text class="t " x="118" y="555" fill="#e6edf3">7m 20s</text>
-  <text class="t " x="198" y="555" fill="#22d3ee">e--Coding-Projects-Open-Source</text>
-  <text class="t " x="488" y="555" fill="#e6edf3">Opus 4.6</text>
-  <text class="t " x="588" y="555" fill="#4ade80">$0.21</text>
-  <line x1="30" y1="562" x2="650" y2="562" stroke="#8b949e" stroke-width="0.5"/>
-  <text class="t " x="38" y="577" fill="#8b949e">16:57</text>
-  <text class="t " x="118" y="577" fill="#e6edf3">1m 13s</text>
-  <text class="t " x="198" y="577" fill="#22d3ee">C--Users-pc</text>
-  <text class="t " x="488" y="577" fill="#e6edf3">Opus 4.6</text>
-  <text class="t " x="588" y="577" fill="#4ade80">$0.20</text>
-  <line x1="30" y1="584" x2="650" y2="584" stroke="#8b949e" stroke-width="0.5"/>
-  <line x1="30" y1="474" x2="30" y2="584" stroke="#8b949e" stroke-width="0.5"/>
-  <line x1="110" y1="474" x2="110" y2="584" stroke="#8b949e" stroke-width="0.5"/>
-  <line x1="190" y1="474" x2="190" y2="584" stroke="#8b949e" stroke-width="0.5"/>
-  <line x1="480" y1="474" x2="480" y2="584" stroke="#8b949e" stroke-width="0.5"/>
-  <line x1="580" y1="474" x2="580" y2="584" stroke="#8b949e" stroke-width="0.5"/>
-  <line x1="650" y1="474" x2="650" y2="584" stroke="#8b949e" stroke-width="0.5"/>
-  <line x1="30" y1="584" x2="650" y2="584" stroke="#8b949e" stroke-width="1"/>
+  <text class="t " x="130" y="58" fill="#4ade80">parsimony yesterday</text>
+
+  <!-- Summary Panel -->
+  <rect x="20" y="72" width="720" height="52" fill="none" stroke="#4ade80" stroke-width="1.2" rx="6"/>
+  <rect x="224" y="66" width="312" height="12" fill="#0d1117" rx="0" />
+  <text class="t " x="380.0" y="76" fill="#e879f9" text-anchor="middle">Parsimony | Yesterday, Mar 25 2026</text>
+  <text class="t " x="40" y="96" fill="#e6edf3">Total Tokens:</text>
+  <text class="t " x="160" y="96" fill="#4ade80">767.1K</text>
+  <text class="t " x="230" y="96" fill="#8b949e">(In: 33  Out: 4,398  Cache: 647.1K)</text>
+  <text class="t " x="40" y="112" fill="#e6edf3">Sessions:</text>
+  <text class="t " x="126" y="112" fill="#22d3ee">4</text>
+  <text class="t " x="175" y="112" fill="#e6edf3">API Calls:</text>
+  <text class="t " x="275" y="112" fill="#22d3ee">17</text>
+
+  <!-- By Model -->
+  <text class="t " x="380.0" y="148" fill="#e6edf3" text-anchor="middle" font-weight="bold">By Model</text>
+  <rect x="195" y="158" width="370" height="22" fill="#1a1f2e" rx="0" />
+  <line x1="195" y1="158" x2="565" y2="158" stroke="#60a5fa" stroke-width="2"/>
+  <line x1="195" y1="180" x2="565" y2="180" stroke="#60a5fa" stroke-width="2"/>
+  <text class="t " x="203" y="173" fill="#60a5fa">Model</text>
+  <text class="t " x="378" y="173" fill="#60a5fa">Tokens</text>
+  <text class="t " x="478" y="173" fill="#60a5fa">Share</text>
+  <line x1="195" y1="158" x2="195" y2="180" stroke="#60a5fa" stroke-width="2"/>
+  <line x1="370" y1="158" x2="370" y2="180" stroke="#60a5fa" stroke-width="2"/>
+  <line x1="470" y1="158" x2="470" y2="180" stroke="#60a5fa" stroke-width="2"/>
+  <line x1="565" y1="158" x2="565" y2="180" stroke="#60a5fa" stroke-width="2"/>
+  <text class="t " x="203" y="195" fill="#e6edf3">Opus 4.6</text>
+  <text class="t " x="378" y="195" fill="#facc15">767.1K</text>
+  <text class="t " x="478" y="195" fill="#22d3ee">100.0%</text>
+  <line x1="195" y1="202" x2="565" y2="202" stroke="#8b949e" stroke-width="0.5"/>
+  <line x1="195" y1="180" x2="195" y2="202" stroke="#8b949e" stroke-width="0.5"/>
+  <line x1="370" y1="180" x2="370" y2="202" stroke="#8b949e" stroke-width="0.5"/>
+  <line x1="470" y1="180" x2="470" y2="202" stroke="#8b949e" stroke-width="0.5"/>
+  <line x1="565" y1="180" x2="565" y2="202" stroke="#8b949e" stroke-width="0.5"/>
+  <line x1="195" y1="202" x2="565" y2="202" stroke="#8b949e" stroke-width="1"/>
+
+  <!-- By Tool -->
+  <text class="t " x="380.0" y="228" fill="#e6edf3" text-anchor="middle" font-weight="bold">By Tool</text>
+  <rect x="195" y="238" width="340" height="22" fill="#1a1f2e" rx="0" />
+  <line x1="195" y1="238" x2="535" y2="238" stroke="#60a5fa" stroke-width="2"/>
+  <line x1="195" y1="260" x2="535" y2="260" stroke="#60a5fa" stroke-width="2"/>
+  <text class="t " x="203" y="253" fill="#60a5fa">Tool</text>
+  <text class="t " x="383" y="253" fill="#60a5fa">Calls</text>
+  <text class="t " x="453" y="253" fill="#60a5fa">Type</text>
+  <line x1="195" y1="238" x2="195" y2="260" stroke="#60a5fa" stroke-width="2"/>
+  <line x1="375" y1="238" x2="375" y2="260" stroke="#60a5fa" stroke-width="2"/>
+  <line x1="445" y1="238" x2="445" y2="260" stroke="#60a5fa" stroke-width="2"/>
+  <line x1="535" y1="238" x2="535" y2="260" stroke="#60a5fa" stroke-width="2"/>
+  <text class="t " x="203" y="275" fill="#4ade80">Bash</text>
+  <text class="t " x="393" y="275" fill="#facc15">5</text>
+  <text class="t " x="453" y="275" fill="#8b949e">Built-in</text>
+  <line x1="195" y1="282" x2="535" y2="282" stroke="#8b949e" stroke-width="0.5"/>
+  <text class="t " x="203" y="297" fill="#4ade80">Edit</text>
+  <text class="t " x="393" y="297" fill="#facc15">4</text>
+  <text class="t " x="453" y="297" fill="#8b949e">Built-in</text>
+  <line x1="195" y1="304" x2="535" y2="304" stroke="#8b949e" stroke-width="0.5"/>
+  <text class="t " x="203" y="319" fill="#4ade80">Read</text>
+  <text class="t " x="393" y="319" fill="#facc15">2</text>
+  <text class="t " x="453" y="319" fill="#8b949e">Built-in</text>
+  <line x1="195" y1="326" x2="535" y2="326" stroke="#8b949e" stroke-width="0.5"/>
+  <text class="t " x="203" y="341" fill="#4ade80">Agent</text>
+  <text class="t " x="393" y="341" fill="#facc15">1</text>
+  <text class="t " x="453" y="341" fill="#8b949e">Built-in</text>
+  <line x1="195" y1="348" x2="535" y2="348" stroke="#8b949e" stroke-width="0.5"/>
+  <text class="t " x="203" y="363" fill="#4ade80">Grep</text>
+  <text class="t " x="393" y="363" fill="#facc15">1</text>
+  <text class="t " x="453" y="363" fill="#8b949e">Built-in</text>
+  <line x1="195" y1="370" x2="535" y2="370" stroke="#8b949e" stroke-width="0.5"/>
+  <line x1="195" y1="260" x2="195" y2="370" stroke="#8b949e" stroke-width="0.5"/>
+  <line x1="375" y1="260" x2="375" y2="370" stroke="#8b949e" stroke-width="0.5"/>
+  <line x1="445" y1="260" x2="445" y2="370" stroke="#8b949e" stroke-width="0.5"/>
+  <line x1="535" y1="260" x2="535" y2="370" stroke="#8b949e" stroke-width="0.5"/>
+  <line x1="195" y1="370" x2="535" y2="370" stroke="#8b949e" stroke-width="1"/>
+
+  <!-- Cache Efficiency -->
+  <rect x="20" y="392" width="720" height="38" fill="none" stroke="#4ade80" stroke-width="1.2" rx="6"/>
+  <rect x="312.0" y="386" width="136.0" height="12" fill="#0d1117" rx="0" />
+  <text class="t " x="380.0" y="396" fill="#22d3ee" text-anchor="middle">Cache Efficiency</text>
+  <text class="t " x="40" y="416" fill="#e6edf3">Cache Hit Rate:</text>
+  <rect x="175" y="406" width="350" height="14" fill="#1a1f2e" rx="4" />
+  <rect x="175" y="406" width="296.8" height="14" fill="#4ade80" rx="4" />
+  <rect x="471.8" y="406" width="53.2" height="14" fill="#6b7280" rx="0" opacity="0.4"/>
+  <text class="t " x="540" y="416" fill="#22d3ee">84.8%</text>
+
+  <!-- Sessions -->
+  <text class="t " x="380.0" y="452" fill="#e6edf3" text-anchor="middle" font-weight="bold">Sessions</text>
+  <rect x="30" y="462" width="700" height="22" fill="#1a1f2e" rx="0" />
+  <line x1="30" y1="462" x2="730" y2="462" stroke="#e879f9" stroke-width="2"/>
+  <line x1="30" y1="484" x2="730" y2="484" stroke="#e879f9" stroke-width="2"/>
+  <text class="t " x="38" y="477" fill="#e879f9">Time</text>
+  <text class="t " x="108" y="477" fill="#e879f9">Duration</text>
+  <text class="t " x="198" y="477" fill="#e879f9">Project</text>
+  <text class="t " x="508" y="477" fill="#e879f9">Model(s)</text>
+  <text class="t " x="648" y="477" fill="#e879f9">Tokens</text>
+  <line x1="30" y1="462" x2="30" y2="484" stroke="#e879f9" stroke-width="2"/>
+  <line x1="100" y1="462" x2="100" y2="484" stroke="#e879f9" stroke-width="2"/>
+  <line x1="190" y1="462" x2="190" y2="484" stroke="#e879f9" stroke-width="2"/>
+  <line x1="500" y1="462" x2="500" y2="484" stroke="#e879f9" stroke-width="2"/>
+  <line x1="630" y1="462" x2="630" y2="484" stroke="#e879f9" stroke-width="2"/>
+  <line x1="730" y1="462" x2="730" y2="484" stroke="#e879f9" stroke-width="2"/>
+
+  <!-- Session rows -->
+  <text class="t " x="38" y="499" fill="#8b949e">20:54</text>
+  <text class="t " x="108" y="499" fill="#e6edf3">4m 40s</text>
+  <text class="t " x="198" y="499" fill="#22d3ee">my-saas-app</text>
+  <text class="t " x="508" y="499" fill="#e6edf3">Opus 4.6</text>
+  <text class="t " x="648" y="499" fill="#4ade80">447.4K</text>
+  <line x1="30" y1="506" x2="730" y2="506" stroke="#8b949e" stroke-width="0.5"/>
+
+  <text class="t " x="38" y="521" fill="#8b949e">18:04</text>
+  <text class="t " x="108" y="521" fill="#e6edf3">7m 20s</text>
+  <text class="t " x="198" y="521" fill="#22d3ee">my-saas-app</text>
+  <text class="t " x="508" y="521" fill="#e6edf3">Opus 4.6</text>
+  <text class="t " x="648" y="521" fill="#4ade80">168.5K</text>
+  <line x1="30" y1="528" x2="730" y2="528" stroke="#8b949e" stroke-width="0.5"/>
+
+  <text class="t " x="38" y="543" fill="#8b949e">16:57</text>
+  <text class="t " x="108" y="543" fill="#e6edf3">1m 13s</text>
+  <text class="t " x="198" y="543" fill="#22d3ee">dotfiles</text>
+  <text class="t " x="508" y="543" fill="#e6edf3">Opus 4.6</text>
+  <text class="t " x="648" y="543" fill="#4ade80">100.2K</text>
+  <line x1="30" y1="550" x2="730" y2="550" stroke="#8b949e" stroke-width="0.5"/>
+
+  <text class="t " x="38" y="565" fill="#8b949e">15:40</text>
+  <text class="t " x="108" y="565" fill="#e6edf3">10s</text>
+  <text class="t " x="198" y="565" fill="#22d3ee">dotfiles</text>
+  <text class="t " x="508" y="565" fill="#e6edf3">Opus 4.6</text>
+  <text class="t " x="648" y="565" fill="#4ade80">50.9K</text>
+  <line x1="30" y1="572" x2="730" y2="572" stroke="#8b949e" stroke-width="0.5"/>
+
+  <!-- Session table borders -->
+  <line x1="30" y1="484" x2="30" y2="572" stroke="#8b949e" stroke-width="0.5"/>
+  <line x1="100" y1="484" x2="100" y2="572" stroke="#8b949e" stroke-width="0.5"/>
+  <line x1="190" y1="484" x2="190" y2="572" stroke="#8b949e" stroke-width="0.5"/>
+  <line x1="500" y1="484" x2="500" y2="572" stroke="#8b949e" stroke-width="0.5"/>
+  <line x1="630" y1="484" x2="630" y2="572" stroke="#8b949e" stroke-width="0.5"/>
+  <line x1="730" y1="484" x2="730" y2="572" stroke="#8b949e" stroke-width="0.5"/>
+  <line x1="30" y1="572" x2="730" y2="572" stroke="#8b949e" stroke-width="1"/>
 </svg>

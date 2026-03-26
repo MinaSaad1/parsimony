@@ -115,7 +115,6 @@ def _render_report(
     export_format: str | None = None,
     session_filter: SessionFilter | None = None,
     config: DisplayConfig | None = None,
-    tier: str | None = None,
 ) -> None:
     """Filter sessions, compute rollup, and render output."""
     if config is None:
@@ -157,7 +156,7 @@ def _render_report(
                 console.print(warning)
 
     # Token budget warnings and gauges
-    token_cfg = load_token_budget(tier=tier)
+    token_cfg = load_token_budget()
     if token_cfg.is_configured:
         token_statuses: list[TokenBudgetStatus] = []
         weekly_tokens = 0
@@ -252,8 +251,6 @@ def _build_session_filter(ctx: click.Context) -> SessionFilter:
               help="Minimum session token threshold.")
 @click.option("--max-tokens", "filter_max_tokens", type=int, default=None,
               help="Maximum session token threshold.")
-@click.option("--tier", type=click.Choice(["pro", "max5", "max20"]), default=None,
-              help="Subscription tier for token limits.")
 @click.pass_context
 def main(
     ctx: click.Context,
@@ -268,7 +265,6 @@ def main(
     filter_max_cost: float | None,
     filter_min_tokens: int | None,
     filter_max_tokens: int | None,
-    tier: str | None,
 ) -> None:
     """Parsimony: Know where every token goes."""
     if verbose:
@@ -289,7 +285,6 @@ def main(
     ctx.obj["filter_max_cost"] = filter_max_cost
     ctx.obj["filter_min_tokens"] = filter_min_tokens
     ctx.obj["filter_max_tokens"] = filter_max_tokens
-    ctx.obj["tier"] = tier
 
     if ctx.invoked_subcommand is None:
         # Default: show today's report
@@ -297,7 +292,7 @@ def main(
         sf = _build_session_filter(ctx)
         _render_report(
             sessions, TimeRange.today(), ctx.obj["pricing"],
-            export_format, sf, ctx.obj["config"], tier=tier,
+            export_format, sf, ctx.obj["config"],
         )
 
 
@@ -309,7 +304,7 @@ def today(ctx: click.Context) -> None:
     sf = _build_session_filter(ctx)
     _render_report(
         sessions, TimeRange.today(), ctx.obj["pricing"],
-        ctx.obj["export_format"], sf, ctx.obj["config"], tier=ctx.obj.get("tier"),
+        ctx.obj["export_format"], sf, ctx.obj["config"],
     )
 
 
@@ -321,7 +316,7 @@ def yesterday(ctx: click.Context) -> None:
     sf = _build_session_filter(ctx)
     _render_report(
         sessions, TimeRange.yesterday(), ctx.obj["pricing"],
-        ctx.obj["export_format"], sf, ctx.obj["config"], tier=ctx.obj.get("tier"),
+        ctx.obj["export_format"], sf, ctx.obj["config"],
     )
 
 
@@ -335,7 +330,7 @@ def week(ctx: click.Context, last: bool) -> None:
     sf = _build_session_filter(ctx)
     _render_report(
         sessions, time_range, ctx.obj["pricing"],
-        ctx.obj["export_format"], sf, ctx.obj["config"], tier=ctx.obj.get("tier"),
+        ctx.obj["export_format"], sf, ctx.obj["config"],
     )
 
 
@@ -363,7 +358,7 @@ def month(ctx: click.Context, year_month: str | None) -> None:
     sf = _build_session_filter(ctx)
     _render_report(
         sessions, time_range, ctx.obj["pricing"],
-        ctx.obj["export_format"], sf, ctx.obj["config"], tier=ctx.obj.get("tier"),
+        ctx.obj["export_format"], sf, ctx.obj["config"],
     )
 
 
@@ -375,14 +370,16 @@ def budget(ctx: click.Context) -> None:
     from parsimony.output.formatters import format_percentage as _fmt_pct
 
     budget_cfg = load_budget()
-    token_cfg = load_token_budget(tier=ctx.obj.get("tier"))
+    token_cfg = load_token_budget()
     any_configured = budget_cfg.is_configured or token_cfg.is_configured
 
     if not any_configured:
         console.print("[dim]No budget configured.[/dim]")
         console.print("[dim]Add a budget section to ~/.parsimony/config.yaml:[/dim]")
         console.print("[cyan]  budget:\n    daily: 5.00\n    weekly: 25.00\n    monthly: 80.00[/]")
-        console.print("[dim]Or pass --tier pro|max5|max20 for token limits.[/dim]")
+        console.print(
+            "[dim]  token_budget:\n    session_limit: 500000\n    weekly_limit: 5000000[/]",
+        )
         return
 
     pricing = ctx.obj["pricing"]

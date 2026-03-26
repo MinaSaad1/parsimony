@@ -10,7 +10,6 @@ from unittest.mock import patch
 from click.testing import CliRunner
 
 from parsimony.budget import (
-    TIER_PRESETS,
     BudgetConfig,
     TokenBudgetConfig,
     check_budget,
@@ -218,40 +217,36 @@ class TestTokenBudgetStatus:
         assert status.over_limit is False  # used == limit is NOT over
 
 
-class TestTierPresets:
-    def test_pro_preset(self) -> None:
-        assert TIER_PRESETS["pro"].session_limit == 44_000
-
-    def test_max5_preset(self) -> None:
-        assert TIER_PRESETS["max5"].session_limit == 88_000
-
-    def test_max20_preset(self) -> None:
-        assert TIER_PRESETS["max20"].session_limit == 220_000
-
-
 class TestLoadTokenBudget:
-    def test_no_file_no_tier(self, tmp_path: Path) -> None:
+    def test_no_file(self, tmp_path: Path) -> None:
         cfg = load_token_budget(config_path=tmp_path / "nonexistent.yaml")
         assert cfg.is_configured is False
 
-    def test_tier_only(self, tmp_path: Path) -> None:
-        cfg = load_token_budget(config_path=tmp_path / "nonexistent.yaml", tier="max5")
-        assert cfg.session_limit == 88_000
-
-    def test_config_file_overrides_tier(self, tmp_path: Path) -> None:
+    def test_config_file_session_limit(self, tmp_path: Path) -> None:
         config_file = tmp_path / "config.yaml"
         config_file.write_text(dedent("""\
             token_budget:
-              session_limit: 100000
-        """))
-        cfg = load_token_budget(config_path=config_file, tier="pro")
-        assert cfg.session_limit == 100000
-
-    def test_config_file_tier_key(self, tmp_path: Path) -> None:
-        config_file = tmp_path / "config.yaml"
-        config_file.write_text(dedent("""\
-            token_budget:
-              tier: max20
+              session_limit: 500000
         """))
         cfg = load_token_budget(config_path=config_file)
-        assert cfg.session_limit == 220_000
+        assert cfg.session_limit == 500_000
+
+    def test_config_file_weekly_limit(self, tmp_path: Path) -> None:
+        config_file = tmp_path / "config.yaml"
+        config_file.write_text(dedent("""\
+            token_budget:
+              weekly_limit: 5000000
+        """))
+        cfg = load_token_budget(config_path=config_file)
+        assert cfg.weekly_limit == 5_000_000
+
+    def test_config_file_both_limits(self, tmp_path: Path) -> None:
+        config_file = tmp_path / "config.yaml"
+        config_file.write_text(dedent("""\
+            token_budget:
+              session_limit: 500000
+              weekly_limit: 5000000
+        """))
+        cfg = load_token_budget(config_path=config_file)
+        assert cfg.session_limit == 500_000
+        assert cfg.weekly_limit == 5_000_000

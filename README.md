@@ -11,7 +11,7 @@
 
 Claude Code subscribers have session and weekly token limits, not per-token charges. But there is no built-in way to see where those tokens went. **Parsimony gives you that visibility.** It reads the JSONL files Claude Code already saves on your machine and shows exactly which sessions, models, and tools consumed your usage allowance. No API keys needed.
 
-**v0.3.0** reframes the entire tool around **token usage**. Cost is now opt-in via `--show-cost` for users who want API cost comparisons. New features: subscription tier presets (`--tier`), token budgets, token-based filtering, and visual usage gauges.
+**v0.3.0** reframes the entire tool around **token usage**. Cost is now opt-in via `--show-cost` for users who want API cost comparisons. New features: custom token budgets, token-based filtering, and visual usage gauges.
 
 ---
 
@@ -68,31 +68,30 @@ All reports lead with token usage. To include API cost estimates, add `--show-co
 parsimony --show-cost week    # tokens + cost columns
 ```
 
-### Subscription Tier Limits
+### Token Budgets
 
-Set your Claude Code subscription tier to see usage gauges against your session token limit:
-
-```bash
-parsimony --tier pro today      # Pro tier (~44K tokens/session)
-parsimony --tier max5 week      # Max 5x tier (~88K tokens/session)
-parsimony --tier max20 budget   # Max 20x tier (~220K tokens/session)
-```
-
-Or configure permanently in `~/.parsimony/config.yaml`:
+Set custom session and weekly token limits in `~/.parsimony/config.yaml` to track your usage against your subscription allowance. Check your Claude Code usage page to see your actual limits and set these values accordingly:
 
 ```yaml
 token_budget:
-  tier: max5                    # use a preset
-  session_limit: 88000          # or override with exact values
-  weekly_limit: 45000000        # manual weekly limit (optional)
+  session_limit: 500000         # max tokens per session
+  weekly_limit: 5000000         # weekly token cap
 ```
 
 When configured, reports show a usage gauge at the top:
 
 ```
-Weekly:  [████████████████░░░░░░░░░░░░░░]  32.1M / 45.0M  (71.3%)
-Session Peak:  [██████████████████████░░░░░░░░]  65.2K / 88.0K  (74.1%)
+Weekly:  [████████████████░░░░░░░░░░░░░░]  3.2M / 5.0M  (64.0%)
+Session Peak:  [██████████████████████░░░░░░░░]  447.4K / 500.0K  (89.5%)
 ```
+
+View budget status:
+
+```bash
+parsimony budget                  # view token + cost budget status
+```
+
+Color-coded progress bars show: green (<70%), yellow (70-90%), red (>90%).
 
 ### Filtering
 
@@ -129,24 +128,13 @@ parsimony live --project myapp    # filter by project
 | `r` | Force refresh      |
 | `t` | Toggle today/week/month |
 
-The dashboard shows: token usage summary with trend arrow, per-model token bars, top tools by call count, cache hit rate gauge, usage gauges (when tier is configured), and a scrollable session log sorted by token usage.
+The dashboard shows: token usage summary with trend arrow, per-model token bars, top tools by call count, cache hit rate gauge, usage gauges (when token budgets are configured), and a scrollable session log sorted by token usage.
 
 <div align="center">
   <picture>
     <img alt="Parsimony live dashboard" src="https://raw.githubusercontent.com/MinaSaad1/parsimony/main/assets/dashboard-demo.svg" width="760">
   </picture>
 </div>
-
-### Token Budgets
-
-Set session and weekly token limits matching your subscription tier. Warnings appear automatically in reports when you approach or exceed limits.
-
-```bash
-parsimony budget                  # view token + cost budget status
-parsimony --tier max5 budget      # with tier preset
-```
-
-Color-coded progress bars show: green (<70%), yellow (70-90%), red (>90%).
 
 ### Cost Budgets
 
@@ -309,7 +297,7 @@ graph TD
 | **By Tool**   | Tool call counts, MCP vs built-in               |
 | **Cache**     | Hit rate gauge, read/write breakdown             |
 | **Sessions**  | Time, duration, project, model, tokens           |
-| **Budgets**   | Token usage vs tier limits with progress bars    |
+| **Budgets**   | Token usage vs custom limits with progress bars  |
 | **Trends**    | Daily token bars, 7-day moving average, direction |
 | **Diff**      | Side-by-side session comparison with deltas      |
 | **Dashboard** | All of the above, live-updating in real time     |

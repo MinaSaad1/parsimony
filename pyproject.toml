@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "parsimony-cli"
-version = "0.3.0"
+version = "0.3.1"
 description = "Know where your Claude Code tokens go - usage tracking for subscribers"
 readme = "README.md"
 license = "MIT"

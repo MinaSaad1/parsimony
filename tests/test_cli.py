@@ -147,20 +147,6 @@ class TestCLIShowCost:
         assert result.exit_code == 0
 
 
-class TestCLITier:
-    def test_tier_flag(self) -> None:
-        runner = CliRunner()
-        with patch("parsimony.cli._load_all_sessions", return_value=_mock_sessions()):
-            result = runner.invoke(main, ["--tier", "max5", "today"])
-        assert result.exit_code == 0
-
-    def test_tier_with_budget(self) -> None:
-        runner = CliRunner()
-        with patch("parsimony.cli._load_all_sessions", return_value=_mock_sessions()):
-            result = runner.invoke(main, ["--tier", "pro", "budget"])
-        assert result.exit_code == 0
-
-
 class TestCLITokenFilters:
     def test_min_tokens(self) -> None:
         runner = CliRunner()

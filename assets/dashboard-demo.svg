@@ -15,17 +15,17 @@
 
   <!-- === LEFT PANEL === -->
 
-  <!-- Cost Header (top bar spanning full width) -->
+  <!-- Usage Header (top bar spanning full width) -->
   <rect x="12" y="38" width="856" height="28" fill="#161b22" rx="0" />
   <line x1="12" y1="66" x2="868" y2="66" stroke="#22d3ee" stroke-width="1"/>
-  <text class="t" x="24" y="57" fill="#e6edf3">Total:</text>
-  <text class="t" x="80" y="57" fill="#4ade80" font-weight="bold">$1.16</text>
-  <text class="t" x="170" y="57" fill="#e6edf3">Sessions:</text>
-  <text class="t" x="260" y="57" fill="#22d3ee">4</text>
-  <text class="t" x="310" y="57" fill="#e6edf3">Trend:</text>
-  <text class="t" x="374" y="57" fill="#22d3ee">&#8594; stable</text>
-  <text class="t" x="510" y="57" fill="#e6edf3">Cache:</text>
-  <text class="t" x="575" y="57" fill="#22d3ee">84.7%</text>
+  <text class="t" x="24" y="57" fill="#e6edf3">Tokens:</text>
+  <text class="t" x="92" y="57" fill="#4ade80" font-weight="bold">767.1K</text>
+  <text class="t" x="190" y="57" fill="#e6edf3">Sessions:</text>
+  <text class="t" x="280" y="57" fill="#22d3ee">4</text>
+  <text class="t" x="330" y="57" fill="#e6edf3">Trend:</text>
+  <text class="t" x="394" y="57" fill="#22d3ee">&#8594; stable</text>
+  <text class="t" x="530" y="57" fill="#e6edf3">Cache:</text>
+  <text class="t" x="595" y="57" fill="#22d3ee">84.8%</text>
 
   <!-- Model Breakdown panel -->
   <rect x="12" y="74" width="420" height="68" fill="none" stroke="#22d3ee" stroke-width="1" rx="4"/>
@@ -34,14 +34,14 @@
   <rect x="120" y="86" width="160" height="14" fill="#1a1f2e" rx="3"/>
   <!-- Bar fill -->
   <rect x="120" y="86" width="160" height="14" fill="#4ade80" rx="3"/>
-  <text class="t" x="296" y="98" fill="#4ade80">$1.16</text>
-  <text class="t" x="354" y="98" fill="#8b949e">(767.1K)</text>
+  <text class="t" x="296" y="98" fill="#4ade80">767.1K</text>
+  <text class="t" x="370" y="98" fill="#8b949e">(94.8%)</text>
 
   <text class="t" x="24" y="126" fill="#e6edf3">Sonnet 4.6</text>
   <rect x="120" y="114" width="160" height="14" fill="#1a1f2e" rx="3"/>
   <rect x="120" y="114" width="8" height="14" fill="#4ade80" rx="3"/>
-  <text class="t" x="296" y="126" fill="#4ade80">$0.07</text>
-  <text class="t" x="354" y="126" fill="#8b949e">(42.3K)</text>
+  <text class="t" x="296" y="126" fill="#4ade80">42.3K</text>
+  <text class="t" x="362" y="126" fill="#8b949e">(5.2%)</text>
 
   <!-- Tool List panel -->
   <rect x="12" y="150" width="420" height="150" fill="none" stroke="#22d3ee" stroke-width="1" rx="4"/>
@@ -73,9 +73,9 @@
   <rect x="12" y="308" width="420" height="44" fill="none" stroke="#22d3ee" stroke-width="1" rx="4"/>
   <text class="t" x="24" y="335" fill="#e6edf3">Hit Rate:</text>
   <rect x="110" y="323" width="240" height="14" fill="#1a1f2e" rx="4"/>
-  <rect x="110" y="323" width="203" height="14" fill="#4ade80" rx="4"/>
-  <rect x="313" y="323" width="37" height="14" fill="#6b7280" rx="0" opacity="0.4"/>
-  <text class="t" x="362" y="335" fill="#22d3ee">84.7%</text>
+  <rect x="110" y="323" width="203.5" height="14" fill="#4ade80" rx="4"/>
+  <rect x="313.5" y="323" width="36.5" height="14" fill="#6b7280" rx="0" opacity="0.4"/>
+  <text class="t" x="362" y="335" fill="#22d3ee">84.8%</text>
 
   <!-- === RIGHT PANEL: Session Log === -->
   <rect x="440" y="74" width="428" height="278" fill="none" stroke="#22d3ee" stroke-width="1" rx="4"/>
@@ -86,55 +86,55 @@
   <text class="t" x="452" y="90" fill="#e879f9" font-weight="bold">Time</text>
   <text class="t" x="510" y="90" fill="#e879f9" font-weight="bold">Duration</text>
   <text class="t" x="600" y="90" fill="#e879f9" font-weight="bold">Project</text>
-  <text class="t" x="760" y="90" fill="#e879f9" font-weight="bold">Model</text>
-  <text class="t" x="840" y="90" fill="#e879f9" font-weight="bold">Cost</text>
+  <text class="t" x="756" y="90" fill="#e879f9" font-weight="bold">Model</text>
+  <text class="t" x="820" y="90" fill="#e879f9" font-weight="bold">Tokens</text>
 
   <!-- Row 1 -->
   <text class="t" x="452" y="116" fill="#4ade80">20:54</text>
   <text class="t" x="510" y="116" fill="#e6edf3">4m 40s</text>
-  <text class="t" x="600" y="116" fill="#22d3ee">e--Coding-Projects-O</text>
-  <text class="t" x="760" y="116" fill="#e6edf3">Opus</text>
-  <text class="t" x="836" y="116" fill="#4ade80">$0.50</text>
+  <text class="t" x="600" y="116" fill="#22d3ee">my-saas-app</text>
+  <text class="t" x="756" y="116" fill="#e6edf3">Opus</text>
+  <text class="t" x="820" y="116" fill="#4ade80">447.4K</text>
   <line x1="452" y1="123" x2="860" y2="123" stroke="#8b949e" stroke-width="0.5"/>
 
   <!-- Row 2 -->
-  <text class="t" x="452" y="142" fill="#8b949e">15:40</text>
-  <text class="t" x="510" y="142" fill="#e6edf3">10s</text>
-  <text class="t" x="600" y="142" fill="#22d3ee">C--Users-pc</text>
-  <text class="t" x="760" y="142" fill="#e6edf3">Opus</text>
-  <text class="t" x="836" y="142" fill="#4ade80">$0.32</text>
+  <text class="t" x="452" y="142" fill="#8b949e">19:59</text>
+  <text class="t" x="510" y="142" fill="#e6edf3">2m 36s</text>
+  <text class="t" x="600" y="142" fill="#22d3ee">expense-tracker</text>
+  <text class="t" x="756" y="142" fill="#e6edf3">Opus</text>
+  <text class="t" x="820" y="142" fill="#4ade80">258.9K</text>
   <line x1="452" y1="149" x2="860" y2="149" stroke="#8b949e" stroke-width="0.5"/>
 
   <!-- Row 3 -->
-  <text class="t" x="452" y="168" fill="#8b949e">21:05</text>
-  <text class="t" x="510" y="168" fill="#e6edf3">35s</text>
-  <text class="t" x="600" y="168" fill="#22d3ee">e--Coding-Projects-v</text>
-  <text class="t" x="760" y="168" fill="#e6edf3">Opus</text>
-  <text class="t" x="836" y="168" fill="#4ade80">$0.30</text>
+  <text class="t" x="452" y="168" fill="#8b949e">18:04</text>
+  <text class="t" x="510" y="168" fill="#e6edf3">7m 20s</text>
+  <text class="t" x="600" y="168" fill="#22d3ee">my-saas-app</text>
+  <text class="t" x="756" y="168" fill="#e6edf3">Opus</text>
+  <text class="t" x="820" y="168" fill="#4ade80">168.5K</text>
   <line x1="452" y1="175" x2="860" y2="175" stroke="#8b949e" stroke-width="0.5"/>
 
   <!-- Row 4 -->
-  <text class="t" x="452" y="194" fill="#8b949e">18:04</text>
-  <text class="t" x="510" y="194" fill="#e6edf3">7m 20s</text>
-  <text class="t" x="600" y="194" fill="#22d3ee">e--Coding-Projects-O</text>
-  <text class="t" x="760" y="194" fill="#e6edf3">Opus</text>
-  <text class="t" x="836" y="194" fill="#4ade80">$0.21</text>
+  <text class="t" x="452" y="194" fill="#8b949e">16:57</text>
+  <text class="t" x="510" y="194" fill="#e6edf3">1m 13s</text>
+  <text class="t" x="600" y="194" fill="#22d3ee">dotfiles</text>
+  <text class="t" x="756" y="194" fill="#e6edf3">Opus</text>
+  <text class="t" x="820" y="194" fill="#4ade80">100.2K</text>
   <line x1="452" y1="201" x2="860" y2="201" stroke="#8b949e" stroke-width="0.5"/>
 
   <!-- Row 5 -->
-  <text class="t" x="452" y="220" fill="#8b949e">16:57</text>
-  <text class="t" x="510" y="220" fill="#e6edf3">1m 13s</text>
-  <text class="t" x="600" y="220" fill="#22d3ee">C--Users-pc</text>
-  <text class="t" x="760" y="220" fill="#e6edf3">Opus</text>
-  <text class="t" x="836" y="220" fill="#4ade80">$0.20</text>
+  <text class="t" x="452" y="220" fill="#8b949e">15:40</text>
+  <text class="t" x="510" y="220" fill="#e6edf3">10s</text>
+  <text class="t" x="600" y="220" fill="#22d3ee">dotfiles</text>
+  <text class="t" x="756" y="220" fill="#e6edf3">Opus</text>
+  <text class="t" x="820" y="220" fill="#4ade80">50.9K</text>
   <line x1="452" y1="227" x2="860" y2="227" stroke="#8b949e" stroke-width="0.5"/>
 
   <!-- Row 6 -->
   <text class="t" x="452" y="246" fill="#8b949e">14:22</text>
   <text class="t" x="510" y="246" fill="#e6edf3">2m 5s</text>
-  <text class="t" x="600" y="246" fill="#22d3ee">e--Coding-Projects-A</text>
-  <text class="t" x="760" y="246" fill="#e6edf3">Snnt</text>
-  <text class="t" x="836" y="246" fill="#4ade80">$0.07</text>
+  <text class="t" x="600" y="246" fill="#22d3ee">blog-engine</text>
+  <text class="t" x="756" y="246" fill="#e6edf3">Snnt</text>
+  <text class="t" x="820" y="246" fill="#4ade80">42.3K</text>
   <line x1="452" y1="253" x2="860" y2="253" stroke="#8b949e" stroke-width="0.5"/>
 
   <!-- === BOTTOM BARS === -->
@@ -151,7 +151,6 @@
   <rect x="0" y="488" width="880" height="32" fill="#1a3a2e" rx="0" />
   <rect x="0" y="510" width="880" height="10" fill="#1a3a2e" rx="10" />
 
-  <text class="t" x="16" y="508" fill="#0d1117" font-weight="bold"> q </text>
   <rect x="12" y="496" width="24" height="18" fill="#4ade80" rx="3"/>
   <text class="t" x="12" y="509" fill="#0d1117" font-weight="bold"> q </text>
   <text class="t" x="42" y="509" fill="#e6edf3">Quit</text>

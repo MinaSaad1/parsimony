@@ -411,3 +411,14 @@ mypy src/             # type check
 ## License
 
 MIT License. See [LICENSE](LICENSE) for details.
+
+---
+
+## About
+
+parsimony is built by [Mina Saad](https://www.mina-saad.com), free and MIT.
+
+I work out what is actually costing a business, then build whatever fixes it: an
+AI agent, an automation, or a full application. Handed over so your team owns it.
+
+[Book a call](https://cal.com/minasaad/60min) · [mina-saad.com](https://www.mina-saad.com)
